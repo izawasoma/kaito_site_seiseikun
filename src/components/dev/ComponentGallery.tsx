@@ -10,6 +10,7 @@ import ActionExamples from "@/components/dev/ActionExamples";
 import ColorExamples from "@/components/dev/ColorExamples";
 import ChipExamples from "@/components/dev/ChipExamples";
 import TextExamples from "@/components/dev/TextExamples";
+import OutputExamples from "@/components/dev/OutputExamples";
 
 export default function ComponentGallery() {
   const [title, setTitle] = useState("");
@@ -32,6 +33,7 @@ export default function ComponentGallery() {
   return (
     <Gallery>
       <h1>フォーム部品の確認</h1>
+      <OutputExamples />
       <TextExamples />
       <ChipExamples />
       <ColorExamples />
