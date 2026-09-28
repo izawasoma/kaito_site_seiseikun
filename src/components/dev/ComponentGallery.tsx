@@ -13,6 +13,7 @@ import TextExamples from "@/components/dev/TextExamples";
 import OutputExamples from "@/components/dev/OutputExamples";
 import DialogExamples from "@/components/dev/DialogExamples";
 import TypographyExamples from "@/components/dev/TypographyExamples";
+import AnswerExamples from "@/components/dev/AnswerExamples";
 
 export default function ComponentGallery() {
   const [title, setTitle] = useState("");
@@ -35,6 +36,7 @@ export default function ComponentGallery() {
   return (
     <Gallery>
       <h1>フォーム部品の確認</h1>
+      <AnswerExamples />
       <TypographyExamples />
       <DialogExamples />
       <OutputExamples />
