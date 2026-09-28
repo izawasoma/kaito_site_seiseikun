@@ -5,22 +5,22 @@ import FormControl, {
 } from "@/components/ui/form/FormControl";
 import { fieldStyles } from "@/components/ui/form/fieldStyles";
 
-type TextFieldProps = FieldDescription &
+type NumberFieldProps = FieldDescription &
   Omit<ComponentPropsWithoutRef<"input">, "children" | "type"> & {
-    type?: "text" | "url" | "email" | "password" | "search" | "tel";
+    unit?: string;
   };
 
-export default function TextField({
+export default function NumberField({
   id,
   label,
   required,
   helperText,
   error,
-  type = "text",
+  unit,
   "aria-describedby": externalDescription,
   "aria-invalid": externalInvalid,
   ...inputProps
-}: TextFieldProps) {
+}: NumberFieldProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
 
@@ -28,6 +28,7 @@ export default function TextField({
     externalDescription,
     helperText ? `${inputId}-help` : undefined,
     error ? `${inputId}-error` : undefined,
+    unit ? `${inputId}-unit` : undefined,
   ]
     .filter(Boolean)
     .join(" ");
@@ -40,19 +41,35 @@ export default function TextField({
       helperText={helperText}
       error={error}
     >
-      <Input
-        {...inputProps}
-        id={inputId}
-        type={type}
-        required={required}
-        aria-describedby={describedBy || undefined}
-        aria-invalid={error ? true : externalInvalid}
-      />
+      <InputRow>
+        <Input
+          {...inputProps}
+          id={inputId}
+          type="number"
+          required={required}
+          aria-describedby={describedBy || undefined}
+          aria-invalid={error ? true : externalInvalid}
+        />
+        {unit && <Unit id={`${inputId}-unit`}>{unit}</Unit>}
+      </InputRow>
     </FormControl>
   );
 }
 
+const InputRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
 const Input = styled.input`
   ${fieldStyles}
+  flex: 1;
   height: 37px;
+`;
+
+const Unit = styled.span`
+  flex-shrink: 0;
+  color: ${({ theme }) => theme.colors.deepGray};
+  font-size: 14px;
 `;

@@ -5,22 +5,20 @@ import FormControl, {
 } from "@/components/ui/form/FormControl";
 import { fieldStyles } from "@/components/ui/form/fieldStyles";
 
-type TextFieldProps = FieldDescription &
-  Omit<ComponentPropsWithoutRef<"input">, "children" | "type"> & {
-    type?: "text" | "url" | "email" | "password" | "search" | "tel";
-  };
+type TextAreaFieldProps = FieldDescription &
+  Omit<ComponentPropsWithoutRef<"textarea">, "children">;
 
-export default function TextField({
+export default function TextAreaField({
   id,
   label,
   required,
   helperText,
   error,
-  type = "text",
+  rows = 5,
   "aria-describedby": externalDescription,
   "aria-invalid": externalInvalid,
-  ...inputProps
-}: TextFieldProps) {
+  ...textareaProps
+}: TextAreaFieldProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
 
@@ -40,10 +38,10 @@ export default function TextField({
       helperText={helperText}
       error={error}
     >
-      <Input
-        {...inputProps}
+      <TextArea
+        {...textareaProps}
         id={inputId}
-        type={type}
+        rows={rows}
         required={required}
         aria-describedby={describedBy || undefined}
         aria-invalid={error ? true : externalInvalid}
@@ -52,7 +50,8 @@ export default function TextField({
   );
 }
 
-const Input = styled.input`
+const TextArea = styled.textarea`
   ${fieldStyles}
-  height: 37px;
+  line-height: 1.5;
+  resize: vertical;
 `;
