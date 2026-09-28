@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-popover": "^1.1.23",
     "@radix-ui/react-select": "^2.3.7",
     "react": "^19.2.8",
+    "react-colorful": "^5.8.1",
     "react-dom": "^19.2.8",
     "styled-components": "^6.5.3"
   },
