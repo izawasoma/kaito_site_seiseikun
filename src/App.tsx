@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import AppHeader from "./components/AppHeader";
-import EditorLayout from "./components/EditorLayout";
+import AppHeader from "@/components/layout/AppHeader";
+import EditorLayout from "@/components/layout/EditorLayout";
 
 function App() {
   return (

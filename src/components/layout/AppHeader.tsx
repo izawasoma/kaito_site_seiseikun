@@ -35,14 +35,14 @@ const Header = styled.header`
   align-items: center;
   min-height: 72px;
   padding: 12px 30px;
-  background-color: #3273b8;
-  color: #ffffff;
+  background-color: ${({ theme }) => theme.colors.deepBlue};
+  color: ${({ theme }) => theme.colors.white};
 `;
 
 const AppTitle = styled.h1`
   margin: 0;
   font-size: 22px;
-  font-weight: 700;
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
   line-height: 1.5;
 `;
 
@@ -65,7 +65,7 @@ const HeaderButton = styled.button`
   background: transparent;
   color: inherit;
   font-size: 18px;
-  font-weight: 500;
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
   white-space: nowrap;
   cursor: pointer;
 
@@ -82,6 +82,6 @@ const HeaderButton = styled.button`
 const ExportButton = styled(HeaderButton)`
   padding: 0 20px;
   border-radius: 6px;
-  background-color: #ffffff;
-  color: #3273b8;
+  background-color: ${({ theme }) => theme.colors.white};
+  color: ${({ theme }) => theme.colors.deepBlue};
 `;
