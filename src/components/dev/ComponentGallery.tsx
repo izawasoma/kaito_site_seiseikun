@@ -6,6 +6,7 @@ import TextAreaField from "@/components/ui/form/TextAreaField";
 import NumberField from "@/components/ui/form/NumberField";
 import SelectField from "@/components/ui/form/SelectField";
 import SelectionExamples from "@/components/dev/SelectionExamples";
+import ActionExamples from "@/components/dev/ActionExamples";
 
 export default function ComponentGallery() {
   const [title, setTitle] = useState("");
@@ -28,6 +29,7 @@ export default function ComponentGallery() {
   return (
     <Gallery>
       <h1>フォーム部品の確認</h1>
+      <ActionExamples />
       <SelectionExamples />
       <DemoForm
         noValidate
@@ -110,6 +112,8 @@ export default function ComponentGallery() {
 }
 
 const Gallery = styled.main`
+  display: grid;
+  gap: 24px;
   max-width: 440px;
   margin: 32px auto;
   padding: 20px;
