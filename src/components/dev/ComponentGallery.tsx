@@ -16,6 +16,7 @@ import TypographyExamples from "@/components/dev/TypographyExamples";
 import AnswerExamples from "@/components/dev/AnswerExamples";
 import ChoiceExamples from "@/components/dev/ChoiceExamples";
 import IconExamples from "@/components/dev/IconExamples";
+import DecorationExamples from "@/components/dev/DecorationExamples";
 
 export default function ComponentGallery() {
   const [title, setTitle] = useState("");
@@ -38,6 +39,7 @@ export default function ComponentGallery() {
   return (
     <Gallery>
       <h1>フォーム部品の確認</h1>
+      <DecorationExamples />
       <IconExamples />
       <ChoiceExamples />
       <AnswerExamples />
