@@ -5,6 +5,7 @@ import Button from "@/components/ui/button/Button";
 import TextAreaField from "@/components/ui/form/TextAreaField";
 import NumberField from "@/components/ui/form/NumberField";
 import SelectField from "@/components/ui/form/SelectField";
+import SelectionExamples from "@/components/dev/SelectionExamples";
 
 export default function ComponentGallery() {
   const [title, setTitle] = useState("");
@@ -27,7 +28,7 @@ export default function ComponentGallery() {
   return (
     <Gallery>
       <h1>フォーム部品の確認</h1>
-
+      <SelectionExamples />
       <DemoForm
         noValidate
         onSubmit={(event) => {
