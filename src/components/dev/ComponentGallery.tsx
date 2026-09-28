@@ -9,6 +9,7 @@ import SelectionExamples from "@/components/dev/SelectionExamples";
 import ActionExamples from "@/components/dev/ActionExamples";
 import ColorExamples from "@/components/dev/ColorExamples";
 import ChipExamples from "@/components/dev/ChipExamples";
+import TextExamples from "@/components/dev/TextExamples";
 
 export default function ComponentGallery() {
   const [title, setTitle] = useState("");
@@ -31,6 +32,7 @@ export default function ComponentGallery() {
   return (
     <Gallery>
       <h1>フォーム部品の確認</h1>
+      <TextExamples />
       <ChipExamples />
       <ColorExamples />
       <ActionExamples />
@@ -124,7 +126,7 @@ const Gallery = styled.main`
   background-color: ${({ theme }) => theme.colors.cloudyWhite};
 
   h1 {
-    margin: 0 0 24px;
+    margin: 0;
     font-size: 20px;
     font-weight: ${({ theme }) => theme.fontWeights.bold};
   }
