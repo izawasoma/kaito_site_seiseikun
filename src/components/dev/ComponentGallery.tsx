@@ -12,6 +12,7 @@ import ChipExamples from "@/components/dev/ChipExamples";
 import TextExamples from "@/components/dev/TextExamples";
 import OutputExamples from "@/components/dev/OutputExamples";
 import DialogExamples from "@/components/dev/DialogExamples";
+import TypographyExamples from "@/components/dev/TypographyExamples";
 
 export default function ComponentGallery() {
   const [title, setTitle] = useState("");
@@ -34,6 +35,7 @@ export default function ComponentGallery() {
   return (
     <Gallery>
       <h1>フォーム部品の確認</h1>
+      <TypographyExamples />
       <DialogExamples />
       <OutputExamples />
       <TextExamples />
