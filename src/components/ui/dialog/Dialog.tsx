@@ -8,6 +8,9 @@ type DialogProps = {
   title: string;
   description: string;
   children: ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  closeButtonGap?: number;
 };
 
 export default function Dialog({
@@ -15,9 +18,12 @@ export default function Dialog({
   title,
   description,
   children,
+  open,
+  onOpenChange,
+  closeButtonGap = 24,
 }: DialogProps) {
   return (
-    <DialogPrimitive.Root>
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <OpenButton>{triggerLabel}</OpenButton>
 
       <DialogPrimitive.Portal>
@@ -36,7 +42,7 @@ export default function Dialog({
 
           <Body>{children}</Body>
 
-          <CloseButton>閉じる</CloseButton>
+          <CloseButton $gap={closeButtonGap}>閉じる</CloseButton>
         </Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>
@@ -125,7 +131,7 @@ const Body = styled.div`
   min-width: 0;
 `;
 
-const CloseButton = styled(DialogPrimitive.Close)`
+const CloseButton = styled(DialogPrimitive.Close)<{ $gap: number }>`
   display: block;
   width: 100%;
   min-height: 32px;
@@ -137,6 +143,7 @@ const CloseButton = styled(DialogPrimitive.Close)`
   font-size: 12px;
   font-weight: ${({ theme }) => theme.fontWeights.bold};
   cursor: pointer;
+  margin-top: ${({ $gap }) => $gap}px;
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.colors.deepBlue};
