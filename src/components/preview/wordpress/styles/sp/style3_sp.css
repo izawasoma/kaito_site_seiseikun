@@ -1,0 +1,411 @@
+/* line 5, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* line 22, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+html {
+  line-height: 1;
+}
+
+/* line 24, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+ol,
+ul {
+  list-style: none;
+}
+
+/* line 26, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* line 28, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+caption,
+th,
+td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* line 30, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+q,
+blockquote {
+  quotes: none;
+}
+
+/* line 103, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+q:before,
+q:after,
+blockquote:before,
+blockquote:after {
+  content: "";
+  content: none;
+}
+
+/* line 32, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+a img {
+  border: none;
+}
+
+/* line 116, ../../../../../../../../Library/Ruby/Gems/2.3.0/gems/compass-core-1.0.3/stylesheets/compass/reset/_utilities.scss */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+
+.hint {
+  margin: 0 40px;
+}
+
+.hint .area_hint03 {
+  margin-bottom: 80px;
+  font-size: 1.0625rem;
+}
+
+/* line 4, ../sass/style3.scss */
+.hintpage {
+  margin: 0 40px;
+  margin-bottom: 100px;
+}
+
+/* line 7, ../sass/style3.scss */
+.hintpage p {
+  color: #424242;
+}
+
+/* line 11, ../sass/style3.scss */
+.hintpage .pagetitle {
+  font-weight: bold;
+  padding: 16px 0 !important;
+}
+
+/* line 18, ../sass/style3.scss */
+.hintpage .area_hint01 {
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 15px;
+  padding-bottom: 24px;
+  margin-bottom: 40px;
+}
+
+/* line 24, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_left img {
+  width: 100%;
+}
+
+/* line 33, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_right img {
+  width: 50%;
+}
+
+/* line 52, ../sass/style3.scss */
+.hintpage .area_hint02 {
+  border: 3px solid #aeaeb0;
+  border-radius: 8px;
+  margin-bottom: 40px;
+}
+
+/* line 57, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01.open .title_posi {
+  background-image: url(../images/hint03_close.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 200px auto;
+}
+
+.hintpage .area_hint02 .hinttitle_area01.open .title_posi2 {
+  background-image: url(../images/hint03_close2.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 100px auto;
+}
+
+/* line 64, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 {
+  position: relative;
+  background-color: #aeaeb0;
+  padding: 16px 24px;
+}
+
+/* line 69, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 img.mr {
+  width: inherit;
+  position: absolute;
+  left: 24px;
+  top: -54px;
+}
+
+/* line 76, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi {
+  background-image: url(../images/hint03_open.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 200px auto;
+}
+
+.hintpage .area_hint02 .hinttitle_area01 .title_posi2 {
+  background-image: url(../images/hint03_open2.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 100px auto;
+}
+
+/* line 83, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_left {
+  padding-right: 16px;
+}
+
+/* line 88, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_mid h2,
+.hintpage .area_hint02 .hinttitle_area01 .title_posi2 .title_posi_mid h2 {
+  color: #fff;
+  margin-bottom: 0;
+}
+
+/* line 95, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_mid img {
+  max-width: 500px;
+}
+
+/* line 97, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_right {
+  padding-left: 24px;
+  text-align: right;
+}
+
+/* line 103, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area02 {
+  margin: 30px;
+}
+
+/* line 105, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area02 img {
+  width: 100%;
+}
+
+/* line 109, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 {
+  background-color: #e3e3e3;
+  border-radius: 4px;
+  margin: 0 24px 24px 24px;
+}
+
+/* line 114, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 {
+  margin: 16px;
+  margin-bottom: 0;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+/* line 119, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi {
+  background-image: url(../images/hint05_open.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 200px auto;
+}
+
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi2 {
+  background-image: url(../images/hint05_open2.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 100px auto;
+}
+
+/* line 125, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi.open {
+  background-image: url(../images/hint05_close.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 200px auto;
+}
+
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi2.open {
+  background-image: url(../images/hint05_close2.png);
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 100px auto;
+}
+
+/* line 132, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_left {
+  padding-right: 16px;
+}
+
+/* line 135, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_mid {
+  flex: 1;
+}
+
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_mid h2 {
+  margin-bottom: 0;
+}
+
+/* line 143, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_mid img {
+  max-width: 500px;
+}
+
+/* line 145, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_right {
+  padding-left: 24px;
+  text-align: right;
+}
+
+/* line 151, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_02 {
+  margin: 30px;
+  margin-top: 0;
+  padding-bottom: 1px;
+}
+
+/* line 155, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_02 img {
+  width: 100%;
+}
+
+/* line 164, ../sass/style3.scss */
+.hintpage .togglearea {
+  display: none;
+}
+
+/* line 166, ../sass/style3.scss */
+.hintpage .title_posi {
+  display: block !important;
+}
+
+/* line 167, ../sass/style3.scss */
+.hintpage .title_posi_mid {
+  font-weight: bold;
+}
+
+/* line 173, ../sass/style3.scss */
+.hintpage .title_posi_left img {
+  width: 150px;
+  margin: 16px 0;
+}
+
+/* line 174, ../sass/style3.scss */
+.hintpage .title_posi_right img {
+  width: 200px !important;
+  margin-bottom: 16px;
+}
+
+/* line 176, ../sass/style3.scss */
+.hintpage .hintediter p {
+  margin-bottom: 1rem;
+}
+
+.hintpage .hintediter summary {
+  list-style: none;
+}
+
+.hintpage .hintediter summary::-webkit-details-marker {
+  display: none;
+}
+
+/* line 185, ../sass/style3.scss */
+.hint-template-default .title_top {
+  background-color: #d5d9d9;
+}
+
+/* line 188, ../sass/style3.scss */
+.hint-template-default .title_top h2 {
+  /*background: url(../images/pagetit_hint.png) no-repeat left center;*/
+}

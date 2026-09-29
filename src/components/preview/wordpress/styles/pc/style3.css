@@ -1,0 +1,213 @@
+/* line 1, ../sass/style3.scss */
+.contents_wrapper_contents000 {
+  background-color: #d5d9d9;
+}
+
+/* line 4, ../sass/style3.scss */
+.contents_wrapper_contents001 {
+  background: url(../images/bg_hint.png) repeat-x;
+}
+
+/* line 6, ../sass/style3.scss */
+.contents_wrapper_contents001 .contents {
+  background-color: #fff;
+  width: 1000px;
+  padding: 40px 15px 40px 15px;
+}
+
+/* line 14, ../sass/style3.scss */
+.hintpage .togglearea {
+  display: none;
+}
+
+/* line 18, ../sass/style3.scss */
+.hintpage h2.pagetitle {
+  font-size: 42px;
+  font-size: 4.2;
+}
+
+/* line 23, ../sass/style3.scss */
+.hintpage .area_hint01 {
+  display: flex;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+/* line 28, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_left {
+  background-color: red;
+}
+
+/* line 30, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_left img {
+  max-width: 650px;
+}
+
+/* line 34, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_right {
+  padding-left: 24px;
+}
+
+/* line 36, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_right p {
+  font-size: 14px;
+  font-size: 1.4rem;
+}
+
+/* line 41, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_right .btn a {
+  background: url(../images/hint_btn_b.png) no-repeat;
+  height: 45px;
+}
+
+/* line 45, ../sass/style3.scss */
+.hintpage .area_hint01 .hint01_right .btn a:hover {
+  background: url(../images/hint_btn_a.png) no-repeat;
+}
+
+/* line 53, ../sass/style3.scss */
+.hintpage .area_hint03 {
+  margin-top: 40px;
+  margin-bottom: 80px;
+}
+
+/* line 58, ../sass/style3.scss */
+.hintpage .area_hint02 {
+  border: 3px solid #aeaeb0;
+  border-radius: 4px;
+}
+
+/* line 61, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 {
+  position: relative;
+  background-color: #aeaeb0;
+  padding: 16px 24px;
+}
+
+/* line 65, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 img.mr {
+  position: absolute;
+  left: 24px;
+  top: -54px;
+}
+
+/* line 72, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01.open .title_posi {
+  background-image: url(../images/hint03_close.png);
+  background-repeat: no-repeat;
+  background-position: right;
+}
+
+/* line 80, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi {
+  background-image: url(../images/hint03_open.png);
+  background-repeat: no-repeat;
+  background-position: right;
+}
+
+/* line 86, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_left {
+  padding-right: 16px;
+  float: left;
+  width: 100px;
+}
+
+/* line 91, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_mid {
+  float: left;
+  width: 640px;
+}
+
+/* line 95, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_mid h2 {
+  font-size: 26px;
+  font-size: 2.6rem;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+/* line 102, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_mid img {
+  max-width: 500px;
+}
+
+/* line 104, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area01 .title_posi .title_posi_right {
+  padding-left: 24px;
+  text-align: right;
+}
+
+/* line 110, ../sass/style3.scss */
+.hintpage .area_hint02 .hinttitle_area02 {
+  margin: 30px;
+}
+
+/* line 113, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 {
+  background-color: #e3e3e3;
+  border-radius: 4px;
+  margin: 0 24px 24px 24px;
+}
+
+/* line 117, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 {
+  margin: 16px;
+  margin-bottom: 0;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+/* line 123, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi {
+  background-image: url(../images/hint05_open.png);
+  background-repeat: no-repeat;
+  background-position: right;
+}
+
+/* line 129, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi.open {
+  background-image: url(../images/hint05_close.png);
+  background-repeat: no-repeat;
+  background-position: right;
+}
+
+/* line 135, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_left {
+  padding-right: 16px;
+  float: left;
+  width: 70px;
+}
+
+/* line 140, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_mid {
+  float: left;
+  width: 600px;
+}
+
+/* line 143, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_mid h2 {
+  font-size: 18px;
+  font-size: 1.8rem;
+  line-height: 1.3;
+  margin-bottom: 0;
+}
+
+/* line 149, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_mid img {
+  max-width: 500px;
+}
+
+/* line 151, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_01 .title_posi .title_posi_right {
+  padding-left: 24px;
+  text-align: right;
+}
+
+/* line 157, ../sass/style3.scss */
+.hintpage .area_hint02 .area_hint02_02 .area_hint02_02_02 {
+  margin: 30px;
+  margin-top: 0;
+  padding-bottom: 1px;
+}
