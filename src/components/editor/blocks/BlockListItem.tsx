@@ -37,7 +37,9 @@ export default function BlockListItem({
     index: blockIndex,
   });
 
-  const blockLabel = block.settings.text.trim() || "タイトル";
+  const typeLabel = block.type === "title" ? "タイトル" : "テキスト";
+  const typeIcon = block.type === "title" ? "title" : "text_fields";
+  const blockLabel = block.settings.text.trim() || typeLabel;
 
   return (
     <Row ref={ref} $selected={isSelected}>
@@ -60,7 +62,7 @@ export default function BlockListItem({
         <NumberLabel aria-hidden="true">{blockIndex + 1}</NumberLabel>
 
         <TypeIcon>
-          <Icon name="title" size={22} />
+          <Icon name={typeIcon} size={22} />
         </TypeIcon>
 
         <BlockLabel>{blockLabel}</BlockLabel>

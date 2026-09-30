@@ -15,7 +15,7 @@ const blockOptions = [
   { type: "button", label: "ボタン", icon: "ads_click" },
 ] as const;
 
-type BlockType = (typeof blockOptions)[number]["type"];
+export type BlockType = (typeof blockOptions)[number]["type"];
 
 type AddBlockPopoverProps = {
   onSelect: (blockType: BlockType) => void;
@@ -60,6 +60,7 @@ export default function AddBlockPopover({ onSelect }: AddBlockPopoverProps) {
               <li key={blockOption.type}>
                 <OptionButton
                   type="button"
+                  disabled={blockOption.type !== "title" && blockOption.type !== "text"}
                   onClick={() => handleSelect(blockOption.type)}
                 >
                   <Icon name={blockOption.icon} size={20} />
@@ -111,7 +112,12 @@ const OptionButton = styled.button`
   text-align: left;
   cursor: pointer;
 
-  &:hover {
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
     background-color: ${({ theme }) => theme.colors.lightGray};
   }
 

@@ -1,10 +1,12 @@
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import styled from "styled-components";
 import Icon from "@/components/ui/icon/Icon";
 
 type DialogProps = {
   triggerLabel: string;
+  /** 指定時は、この要素を開くボタンとして使用する。 */
+  trigger?: ReactElement;
   title: string;
   description: string;
   children: ReactNode;
@@ -15,6 +17,7 @@ type DialogProps = {
 
 export default function Dialog({
   triggerLabel,
+  trigger,
   title,
   description,
   children,
@@ -24,7 +27,11 @@ export default function Dialog({
 }: DialogProps) {
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <OpenButton>{triggerLabel}</OpenButton>
+      {trigger ? (
+        <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
+      ) : (
+        <OpenButton>{triggerLabel}</OpenButton>
+      )}
 
       <DialogPrimitive.Portal>
         <Overlay />

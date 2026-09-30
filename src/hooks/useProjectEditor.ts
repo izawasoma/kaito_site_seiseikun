@@ -179,7 +179,7 @@ export default function useProjectEditor() {
   }
 
   /**
-   * 複製後はコピー内容をクリアし、再度コピーするまで複製できなくする。
+   * 指定したブロックの内容を、コピーした時点のスナップショットとして保持する。
    * 元のブロックを後から編集しても、コピー済みの内容は変わらない。
    *
    * @param blockId - コピーするブロックの固定ID。
@@ -246,7 +246,7 @@ export default function useProjectEditor() {
 
   /**
    * コピー済みの内容に新しいIDを付け、末尾へ追加して選択する。
-   * コピー内容は保持するため、繰り返し複製できる。
+   * 複製後はコピー内容をクリアし、再度コピーするまで複製できなくする。
    */
   function pasteCopiedBlock() {
     if (!copiedBlock) {

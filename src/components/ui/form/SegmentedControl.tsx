@@ -11,6 +11,8 @@ type SegmentOption = {
 
 type SegmentedControlProps = {
   label: string;
+  /** 視覚上はラベルを隠し、読み上げ用の名前として残す。 */
+  hideLabel?: boolean;
   name?: string;
   value: string;
   onValueChange: (value: string) => void;
@@ -20,6 +22,7 @@ type SegmentedControlProps = {
 
 export default function SegmentedControl({
   label,
+  hideLabel = false,
   name,
   value,
   onValueChange,
@@ -30,7 +33,7 @@ export default function SegmentedControl({
 
   return (
     <Group disabled={disabled}>
-      <Legend>{label}</Legend>
+      <Legend $hidden={hideLabel}>{label}</Legend>
 
       <Segments>
         {options.map((option) => (
@@ -62,11 +65,20 @@ const Group = styled.fieldset`
   border: none;
 `;
 
-const Legend = styled.legend`
+const Legend = styled.legend<{ $hidden: boolean }>`
   margin-bottom: 4px;
   padding: 0;
   color: ${({ theme }) => theme.colors.deepGray};
   font-size: 11px;
+  ${({ $hidden }) => $hidden && `
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  `}
 `;
 
 const Segments = styled.div`

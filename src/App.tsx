@@ -2,8 +2,10 @@ import styled from "styled-components";
 import AppHeader from "@/components/layout/AppHeader";
 import EditorLayout from "@/components/layout/EditorLayout";
 import ComponentGallery from "@/components/dev/ComponentGallery";
+import useProjectEditor from "@/hooks/useProjectEditor";
 
 function App() {
+  const editor = useProjectEditor();
   if (
     import.meta.env.DEV &&
     new URLSearchParams(window.location.search).has("components")
@@ -12,8 +14,8 @@ function App() {
   }
   return (
     <AppContainer>
-      <AppHeader />
-      <EditorLayout />
+      <AppHeader project={editor.project} />
+      <EditorLayout editor={editor} />
     </AppContainer>
   );
 }

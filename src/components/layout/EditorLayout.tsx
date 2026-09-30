@@ -3,16 +3,24 @@ import { useState } from "react";
 import PanelSwitcher, {
   type EditorPanel,
 } from "@/components/editor/PanelSwitcher";
-import AddBlockPopover from "@/components/editor/blocks/AddBlockPopover";
-import TitleSettings from "@/components/editor/blocks/title/TitleSettings";
+import AddBlockPopover, {
+  type BlockType,
+} from "@/components/editor/blocks/AddBlockPopover";
+import BlockSettings from "@/components/editor/blocks/BlockSettings";
 import useProjectEditor from "@/hooks/useProjectEditor";
 import { createTitleBlock } from "@/lib/blocks/createTitleBlock";
-import type { TitleSettingsValue } from "@/types/project";
+import { createTextBlock } from "@/lib/blocks/createTextBlock";
 import BlockList from "@/components/editor/blocks/BlockList";
 import Button from "@/components/ui/button/Button";
 import Icon from "@/components/ui/icon/Icon";
+import PreviewPanel from "@/components/preview/PreviewPanel";
 
-export default function EditorLayout() {
+type EditorLayoutProps = {
+  editor: ReturnType<typeof useProjectEditor>;
+};
+
+/** Appで保持する編集状態を使い、設定フォームとプレビューを表示する。 */
+export default function EditorLayout({ editor }: EditorLayoutProps) {
   const [activePanel, setActivePanel] = useState<EditorPanel>("blocks");
   const {
     project,
@@ -26,34 +34,20 @@ export default function EditorLayout() {
     pasteCopiedBlock,
     canPasteBlock,
     moveBlock,
-  } = useProjectEditor();
+  } = editor;
 
-  /**
-   * タイトルの初期データを作り、プロジェクトへ追加する。
-   * 現段階では、追加メニューのタイトルを選択して使用する。
-   */
-  function handleAddBlock() {
-    const newTitleBlock = createTitleBlock();
-    addBlock(newTitleBlock);
-  }
-
-  /**
-   * 選択中のタイトルに、フォームで変更した設定を反映する。
-   *
-   * @param updatedTitleSettings - フォームから受け取った更新後の設定全体。
-   */
-  function handleTitleSettingsChange(updatedTitleSettings: TitleSettingsValue) {
-    if (!selectedBlock) {
-      return;
+  /** 選択した種類の初期データを作り、末尾へ追加して編集対象にする。 */
+  function handleAddBlock(blockType: BlockType) {
+    switch (blockType) {
+      case "title":
+        addBlock(createTitleBlock());
+        break;
+      case "text":
+        addBlock(createTextBlock());
+        break;
     }
-
-    const updatedTitleBlock = {
-      ...selectedBlock,
-      settings: updatedTitleSettings,
-    };
-
-    updateBlock(updatedTitleBlock);
   }
+
   return (
     <Layout>
       <EditorArea>
@@ -90,24 +84,17 @@ export default function EditorLayout() {
         </BlockPanel>
         <SettingsPanel aria-label="設定フォーム">
           {activePanel === "blocks" && selectedBlock && (
-            <TitleSettings
+            <BlockSettings
               key={selectedBlock.id}
-              value={selectedBlock.settings}
-              onChange={handleTitleSettingsChange}
+              block={selectedBlock}
+              onChange={updateBlock}
               rpgTypewriterEnabled={false}
-              textError={
-                selectedBlock.settings.text.trim() === ""
-                  ? "タイトルは必須項目です"
-                  : undefined
-              }
             />
           )}
         </SettingsPanel>
       </EditorArea>
 
-      <PreviewPanel aria-labelledby="preview-heading">
-        <PreviewHeading id="preview-heading">プレビュー</PreviewHeading>
-      </PreviewPanel>
+      <PreviewPanel project={project} />
     </Layout>
   );
 }
@@ -152,20 +139,6 @@ const SettingsPanel = styled.section`
   align-self: stretch;
   min-width: 0;
   background-color: ${({ theme }) => theme.colors.cloudyWhite};
-`;
-
-const PreviewPanel = styled.section`
-  min-width: 0;
-  padding: 12px 26px 24px;
-  background-color: ${({ theme }) => theme.colors.white};
-`;
-
-const PreviewHeading = styled.h2`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.deepGray};
-  font-size: 18px;
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
-  line-height: 1.5;
 `;
 
 const BlockActions = styled.div`

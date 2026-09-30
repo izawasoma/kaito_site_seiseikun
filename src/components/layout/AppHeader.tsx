@@ -1,6 +1,13 @@
 import styled from "styled-components";
+import CodeExportDialog from "@/components/export/CodeExportDialog";
+import type { ProjectData } from "@/types/project";
 
-export default function AppHeader() {
+type AppHeaderProps = {
+  project: ProjectData;
+};
+
+/** 編集中のプロジェクトを、ヘッダーの書き出しダイアログへ渡す。 */
+export default function AppHeader({ project }: AppHeaderProps) {
   return (
     <Header>
       <AppTitle>回答サイト生成君</AppTitle>
@@ -19,12 +26,17 @@ export default function AppHeader() {
           JSON読み込み
         </HeaderButton>
 
-        <ExportButton type="button">
-          <span className="material-icons" aria-hidden="true">
-            code
-          </span>
-          コード書き出し
-        </ExportButton>
+        <CodeExportDialog
+          project={project}
+          trigger={
+            <ExportButton type="button">
+              <span className="material-icons" aria-hidden="true">
+                code
+              </span>
+              コード書き出し
+            </ExportButton>
+          }
+        />
       </HeaderActions>
     </Header>
   );
