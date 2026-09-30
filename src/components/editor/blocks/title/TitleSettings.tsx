@@ -1,16 +1,9 @@
 import SettingsPanelHeader from "@/components/editor/SettingsPanelHeader";
 import DecoratedTextField from "@/components/editor/fields/DecoratedTextField";
-import TypographyFields, {
-  type TypographyValue,
-} from "@/components/editor/fields/TypographyFields";
+import TypographyFields from "@/components/editor/fields/TypographyFields";
+import type { TitleSettingsValue } from "@/types/project";
 import FormSection from "@/components/ui/form/FormSection";
 import Switch from "@/components/ui/form/Switch";
-
-export type TitleSettingsValue = {
-  text: string;
-  typography: TypographyValue;
-  typewriter: boolean;
-};
 
 type TitleSettingsProps = {
   value: TitleSettingsValue;
