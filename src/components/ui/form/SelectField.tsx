@@ -1,4 +1,4 @@
-import { useId, type ComponentPropsWithoutRef } from "react";
+import { useId, type CSSProperties, type ComponentPropsWithoutRef } from "react";
 import * as Select from "@radix-ui/react-select";
 import styled from "styled-components";
 import FormControl, {
@@ -10,6 +10,7 @@ type SelectOption = {
   value: string;
   label: string;
   disabled?: boolean;
+  style?: CSSProperties;
 };
 
 type SelectFieldProps = FieldDescription & {
@@ -105,7 +106,7 @@ export default function SelectField({
                   value={option.value}
                   disabled={option.disabled}
                 >
-                  <Select.ItemText>{option.label}</Select.ItemText>
+                  <Select.ItemText><span style={option.style}>{option.label}</span></Select.ItemText>
                 </Item>
               ))}
             </Select.Viewport>

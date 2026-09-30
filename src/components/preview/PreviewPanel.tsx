@@ -1,3 +1,4 @@
+import Switch from "@/components/ui/form/Switch";
 import { useState } from "react";
 import styled from "styled-components";
 import SegmentedControl from "@/components/ui/form/SegmentedControl";
@@ -12,12 +13,14 @@ const deviceOptions = [
 
 /** プレビューの見出し・表示切り替え・iframeをまとめる。表示選択は保存対象外。 */
 export default function PreviewPanel({ project }: { project: ProjectData }) {
-  const [device, setDevice] = useState<PreviewDevice>("sp");
+  const [unlockAll, setUnlockAll] = useState(false);
+  const [device, setDevice] = useState<PreviewDevice>("pc");
 
   return (
     <Panel aria-labelledby="preview-heading">
       <Header>
         <Heading id="preview-heading">プレビュー</Heading>
+        <Switch label="全ロック解除" checked={unlockAll} onChange={(event) => setUnlockAll(event.target.checked)} />
         <DeviceControl>
           <SegmentedControl
             label="プレビューの表示環境"
@@ -33,7 +36,7 @@ export default function PreviewPanel({ project }: { project: ProjectData }) {
         </DeviceControl>
       </Header>
       {project.blocks.length > 0 && (
-        <WordPressPreview project={project} device={device} />
+        <WordPressPreview project={project} device={device} unlockAll={unlockAll} />
       )}
     </Panel>
   );
@@ -50,6 +53,7 @@ const Header = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 12px;
 `;
 

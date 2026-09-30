@@ -1,3 +1,8 @@
+import { fontFamilyStyle } from "@/lib/fonts/japaneseFonts";
+import { availableFontWeights, supportedFontWeight, weightLabels } from "@/lib/fonts/fontWeights";
+import { useContext } from "react";
+import { PageFontContext } from "./FontContext";
+import FontSelectField from "./FontSelectField";
 import styled, { useTheme } from "styled-components";
 import SegmentedControl from "@/components/ui/form/SegmentedControl";
 import SelectField from "@/components/ui/form/SelectField";
@@ -24,23 +29,6 @@ const alignmentOptions = [
   { value: "right", label: "右揃え", icon: "format_align_right" },
 ];
 
-const fontOptions = [
-  { value: "inherit", label: "ページ設定を使用" },
-  { value: "Noto Sans JP", label: "Noto Sans JP" },
-];
-
-const weightLabels: Record<TypographyValue["fontWeight"], string> = {
-  thin: "Thin",
-  extraLight: "Extra Light",
-  light: "Light",
-  regular: "Regular",
-  medium: "Medium",
-  semiBold: "Semi Bold",
-  bold: "Bold",
-  extraBold: "Extra Bold",
-  black: "Black",
-};
-
 export default function TypographyFields({
   value,
   onChange,
@@ -49,8 +37,12 @@ export default function TypographyFields({
 }: TypographyFieldsProps) {
   const theme = useTheme();
 
-  const weightOptions = Object.keys(theme.fontWeights).map((key) => ({
+  const pageFont = useContext(PageFontContext);
+  const effectiveFamily = value.fontFamily === "inherit" ? pageFont : value.fontFamily;
+  const supportedWeight = supportedFontWeight(effectiveFamily, value.fontWeight);
+  const weightOptions = availableFontWeights(effectiveFamily).map((key) => ({
     value: key,
+    style: { fontFamily: fontFamilyStyle(effectiveFamily), fontWeight: theme.fontWeights[key] },
     label: weightLabels[key as TypographyValue["fontWeight"]],
   }));
 
@@ -72,17 +64,12 @@ export default function TypographyFields({
         disabled={disabled}
       />
 
-      <SelectField
-        label="フォント"
-        value={value.fontFamily}
-        onValueChange={(fontFamily) => onChange({ ...value, fontFamily })}
-        options={fontOptions}
-        disabled={disabled}
-      />
+      <FontSelectField value={value.fontFamily} allowInherit disabled={disabled}
+        onChange={(fontFamily) => onChange({ ...value, fontFamily, fontWeight: supportedFontWeight(fontFamily === "inherit" ? pageFont : fontFamily, value.fontWeight) })} />
 
       <SelectField
         label="太さ"
-        value={value.fontWeight}
+        value={supportedWeight}
         onValueChange={(fontWeight) => {
           if (Object.hasOwn(theme.fontWeights, fontWeight)) {
             onChange({

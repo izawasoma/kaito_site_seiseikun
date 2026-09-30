@@ -1,8 +1,21 @@
+import { validateBlock } from "@/lib/project/validateProject";
 import styled from "styled-components";
 import { useSortable } from "@dnd-kit/react/sortable";
 import Icon from "@/components/ui/icon/Icon";
 import IconButton from "@/components/ui/button/IconButton";
 import type { ProjectBlock } from "@/types/project";
+import { getImageUrl } from "@/lib/getImageUrl";
+
+const blockAppearances = {
+  icon: { label: "アイコンカード", icon: "dashboard" },
+  image: { label: "画像", icon: "image" },
+  button: { label: "ボタン", icon: "ads_click" },
+  answer: { label: "単一回答欄", icon: "list_alt" },
+  multiAnswer: { label: "多答回答欄", icon: "checklist" },
+  speech: { label: "吹出し", icon: "chat_bubble_outline" },
+  title: { label: "タイトル", icon: "title" },
+  text: { label: "テキスト", icon: "text_fields" },
+};
 
 type BlockListItemProps = {
   block: ProjectBlock;
@@ -37,9 +50,11 @@ export default function BlockListItem({
     index: blockIndex,
   });
 
-  const typeLabel = block.type === "title" ? "タイトル" : "テキスト";
-  const typeIcon = block.type === "title" ? "title" : "text_fields";
-  const blockLabel = block.settings.text.trim() || typeLabel;
+  const appearance = blockAppearances[block.type];
+  const avatarUrl = block.type === "speech" ? getImageUrl(block.settings.imageUrl) : "";
+  const blockLabel = block.type === "speech"
+    ? `吹出し${block.settings.characterName.trim() ? `_${block.settings.characterName}` : ""}`
+    : "text" in block.settings ? block.settings.text.trim() || appearance.label : appearance.label;
 
   return (
     <Row ref={ref} $selected={isSelected}>
@@ -62,10 +77,11 @@ export default function BlockListItem({
         <NumberLabel aria-hidden="true">{blockIndex + 1}</NumberLabel>
 
         <TypeIcon>
-          <Icon name={typeIcon} size={22} />
+          {avatarUrl ? <AvatarImage src={avatarUrl} alt="" /> : <Icon name={appearance.icon} size={22} />}
         </TypeIcon>
 
         <BlockLabel>{blockLabel}</BlockLabel>
+        {validateBlock(block).length > 0 && <ErrorMark title="入力内容を確認してください"><Icon name="error" size={18} /></ErrorMark>}
       </SelectButton>
 
       <RowActions>
@@ -89,6 +105,14 @@ const NumberLabel = styled.span`
   min-width: 12px;
   font-size: 12px;
   text-align: center;
+`;
+
+const AvatarImage = styled.img`
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  background-color: ${({ theme }) => theme.colors.white};
 `;
 
 const TypeIcon = styled.span`
@@ -178,4 +202,8 @@ const DragHandle = styled.button`
     outline: 2px solid ${({ theme }) => theme.colors.deepBlue};
     outline-offset: -2px;
   }
+`;
+
+const ErrorMark = styled.span`
+  display: inline-flex; flex-shrink: 0; color: ${({ theme }) => theme.colors.red};
 `;

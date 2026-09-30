@@ -3,6 +3,7 @@ import DecoratedTextField from "@/components/editor/fields/DecoratedTextField";
 import TypographyFields from "@/components/editor/fields/TypographyFields";
 import type { TitleSettingsValue } from "@/types/project";
 import FormSection from "@/components/ui/form/FormSection";
+import Checkbox from "@/components/ui/form/Checkbox";
 import Switch from "@/components/ui/form/Switch";
 
 type TitleSettingsProps = {
@@ -11,6 +12,9 @@ type TitleSettingsProps = {
   rpgTypewriterEnabled: boolean;
   textError?: string;
   fontSizeError?: string;
+  showSimultaneous: boolean;
+  simultaneous: boolean;
+  onSimultaneousChange: (simultaneous: boolean) => void;
 };
 
 export default function TitleSettings({
@@ -19,6 +23,9 @@ export default function TitleSettings({
   rpgTypewriterEnabled,
   textError,
   fontSizeError,
+  showSimultaneous,
+  simultaneous,
+  onSimultaneousChange,
 }: TitleSettingsProps) {
   return (
     <div>
@@ -40,6 +47,14 @@ export default function TitleSettings({
           onChange={(typography) => onChange({ ...value, typography })}
           fontSizeError={fontSizeError}
         />
+
+        {showSimultaneous && (
+          <Checkbox
+            label="前の出現と同時に表示"
+            checked={simultaneous}
+            onChange={(event) => onSimultaneousChange(event.target.checked)}
+          />
+        )}
 
         {rpgTypewriterEnabled && (
           <Switch

@@ -1,0 +1,34 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import vm from "node:vm";
+import test from "node:test";
+
+test("プレビューは親から進捗とスクロールを復元し、ユーザー操作後に位置を巻き戻さない", () => {
+  const source = readFileSync(new URL("../src/components/preview/wordpress/previewBridge.js", import.meta.url), "utf8");
+  const windowEvents = {};
+  const documentEvents = {};
+  const messages = [];
+  const scrolls = [];
+  const frames = [];
+  const dispatched = [];
+  const parent = { postMessage: (message) => messages.push(message) };
+  const window = { scrollY: 0, addEventListener: (name, callback) => { windowEvents[name] = callback; }, scrollTo: ({ top }) => { scrolls.push(top); window.scrollY = top; } };
+  const document = { addEventListener: (name, callback) => { documentEvents[name] = callback; }, dispatchEvent: (event) => dispatched.push(event.type) };
+  vm.runInNewContext(source, { window, document, parent, Event, requestAnimationFrame: (callback) => frames.push(callback) });
+  documentEvents.DOMContentLoaded();
+  assert.equal(messages[0].type, "conversation-preview-ready");
+  const progress = { version: 1, blocks: { a: { viewed: true, cleared: true } } };
+  windowEvents.message({ source: {}, data: { type: "conversation-preview-restore", state: { scrollY: 999 } } });
+  assert.equal(window.__conversationPreviewReady, false);
+  windowEvents.message({ source: parent, data: { type: "conversation-preview-restore", state: { scrollY: 420, progress } } });
+  assert.equal(window.__conversationPreviewProgress, progress);
+  assert.deepEqual(dispatched, ["conversation-preview-ready"]);
+  frames.shift()();
+  assert.equal(window.scrollY, 420);
+  windowEvents.scroll();
+  assert.equal(messages.at(-1).scrollY, 420);
+  windowEvents.pointerdown();
+  window.scrollY = 800;
+  windowEvents.load();
+  assert.equal(window.scrollY, 800);
+});

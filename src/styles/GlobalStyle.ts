@@ -32,6 +32,20 @@ const GlobalStyle = createGlobalStyle`
   textarea {
     font: inherit;
   }
+
+  button {
+    transition: opacity 0.2s ease;
+  }
+
+  @media (hover: hover) {
+    button:hover:not(:disabled):not([aria-disabled="true"]):not([data-disabled]) {
+      opacity: 0.7;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    button { transition: none; }
+  }
 `;
 
 export default GlobalStyle;

@@ -1,25 +1,43 @@
 import styled from "styled-components";
 import CodeExportDialog from "@/components/export/CodeExportDialog";
 import type { ProjectData } from "@/types/project";
+import useProjectFiles from "@/hooks/useProjectFiles";
+import AlertBanner from "@/components/ui/feedback/AlertBanner";
 
 type AppHeaderProps = {
   project: ProjectData;
+  onImport: (project: ProjectData) => void;
 };
 
 /** 編集中のプロジェクトを、ヘッダーの書き出しダイアログへ渡す。 */
-export default function AppHeader({ project }: AppHeaderProps) {
+export default function AppHeader({ project, onImport }: AppHeaderProps) {
+  const { inputRef, notice, downloadProject, readProjectFile, openFilePicker, clearNotice } =
+    useProjectFiles(project, onImport);
   return (
     <Header>
+      <input ref={inputRef} type="file" accept=".json,application/json" hidden onChange={readProjectFile} />
+      {notice.message && (
+        <NoticeArea>
+          {notice.isError ? (
+            <AlertBanner message={notice.message} onClose={clearNotice} />
+          ) : (
+            <SuccessNotice role="status">
+              {notice.message}
+              <DismissButton type="button" onClick={clearNotice} aria-label="通知を閉じる">閉じる</DismissButton>
+            </SuccessNotice>
+          )}
+        </NoticeArea>
+      )}
       <AppTitle>回答サイト生成君</AppTitle>
       <HeaderActions>
-        <HeaderButton type="button">
+        <HeaderButton type="button" onClick={downloadProject}>
           <span className="material-icons" aria-hidden="true">
             file_download
           </span>
           JSONで保存
         </HeaderButton>
 
-        <HeaderButton type="button">
+        <HeaderButton type="button" onClick={openFilePicker}>
           <span className="material-icons" aria-hidden="true">
             drive_folder_upload
           </span>
@@ -41,6 +59,32 @@ export default function AppHeader({ project }: AppHeaderProps) {
     </Header>
   );
 }
+
+const NoticeArea = styled.div`
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 300;
+`;
+
+const SuccessNotice = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background-color: ${({ theme }) => theme.colors.deepGray};
+  color: ${({ theme }) => theme.colors.white};
+  font-size: 14px;
+`;
+
+const DismissButton = styled.button`
+  padding: 4px 8px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+`;
 
 const Header = styled.header`
   display: flex;

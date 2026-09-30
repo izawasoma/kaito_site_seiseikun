@@ -11,6 +11,7 @@ import type { ProjectData } from "@/types/project";
 type WordPressPreviewProps = {
   project: ProjectData;
   device: PreviewDevice;
+  unlockAll?: boolean;
 };
 
 /**
@@ -20,7 +21,10 @@ type WordPressPreviewProps = {
  * プロジェクトまたは表示環境が更新されたときに表示用HTMLを再生成する。
  * iframe内のレイアウト幅を維持し、表示領域に合わせて縮小する。
  */
-export default function WordPressPreview({ project, device }: WordPressPreviewProps) {
+export default function WordPressPreview({ project, device, unlockAll = false }: WordPressPreviewProps) {
+  const [revision, setRevision] = useState(0);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const snapshot = useRef<{ scrollY: number; progress?: unknown }>({ scrollY: 0 });
   const viewportWidth = previewEnvironments[device].width;
   const viewportRef = useRef<HTMLDivElement>(null);
   const [viewportSize, setViewportSize] = useState({
@@ -30,8 +34,30 @@ export default function WordPressPreview({ project, device }: WordPressPreviewPr
 
   const previewDocument = useMemo(() => {
     const generatedCode = generateProjectCode(project);
-    return buildPreviewDocument(generatedCode, device);
-  }, [project, device]);
+    return buildPreviewDocument(generatedCode, device, unlockAll);
+  }, [project, device, unlockAll]);
+
+  useEffect(() => {
+    snapshot.current = { scrollY: 0 };
+  }, [device, unlockAll, project.pageSettings.displayMode]);
+
+  useEffect(() => {
+    function receive(event: MessageEvent) {
+      if (event.source !== frameRef.current?.contentWindow) return;
+      if (event.data?.type === "conversation-preview-state" && Number.isFinite(event.data.scrollY)) {
+        snapshot.current = { scrollY: event.data.scrollY, progress: event.data.progress };
+      }
+      if (event.data?.type === "conversation-preview-reset-request" && window.confirm("プレビューの進捗を削除して、最初から表示しますか？")) {
+        snapshot.current = { scrollY: 0 };
+        setRevision((currentRevision) => currentRevision + 1);
+      }
+      if (event.data?.type === "conversation-preview-ready") {
+        frameRef.current?.contentWindow?.postMessage({ type: "conversation-preview-restore", state: snapshot.current }, "*");
+      }
+    }
+    window.addEventListener("message", receive);
+    return () => window.removeEventListener("message", receive);
+  }, []);
 
   useEffect(() => {
     const viewportElement = viewportRef.current;
@@ -69,9 +95,11 @@ export default function WordPressPreview({ project, device }: WordPressPreviewPr
   return (
     <PreviewViewport ref={viewportRef}>
       <PreviewFrame
+        key={revision}
+        ref={frameRef}
         title={`WordPressの${device === "pc" ? "PC" : "SP"}表示プレビュー`}
         srcDoc={previewDocument}
-        sandbox="allow-scripts"
+        sandbox="allow-scripts allow-forms"
         style={{
           width: viewportWidth,
           height: iframeHeight,

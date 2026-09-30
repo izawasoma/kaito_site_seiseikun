@@ -1,5 +1,7 @@
-import { useState } from "react";
-import type { ProjectData, ProjectBlock } from "@/types/project";
+import { useEffect, useState } from "react";
+import type { ProjectData, ProjectBlock, PageSettingsValue } from "@/types/project";
+import { loadEditorSession, saveEditorSnapshot } from "@/lib/project/projectStorage";
+import { parseProject } from "@/lib/project/parseProject";
 
 /**
  * 保存対象のプロジェクトデータと、編集中の選択状態を管理する。
@@ -15,18 +17,41 @@ type EditorState = {
  * プロジェクトの編集状態と、ブロックの追加・選択・更新・削除・並び替え・コピーを管理する。
  *
  * 各更新処理は、Reactから受け取った最新の編集状態をもとに次の状態を作る。
- * localStorageへの保存やJSONファイルの入出力は、このフックでは行わない。
+ * 編集状態をlocalStorageへ自動保存し、初回に復元する。JSONファイルの操作は別フックが担当する。
  *
  * @returns プロジェクトデータ、選択中のIDとブロック、および編集用の関数。
  */
 export default function useProjectEditor() {
-  const [editorState, setEditorState] = useState<EditorState>({
-    project: {
-      schemaVersion: 1,
-      blocks: [],
-    },
-    selectedBlockId: null,
-  });
+  const [initialSession] = useState(loadEditorSession);
+  const [editorState, setEditorState] = useState<EditorState>(initialSession.snapshot);
+  const [canAutosave, setCanAutosave] = useState(initialSession.canSave);
+  const [storageError, setStorageError] = useState(initialSession.error);
+
+  useEffect(() => {
+    if (!canAutosave) return;
+    let active = true;
+
+    /** 変更を即時保存し、保存結果の通知だけを非同期で更新する。 */
+    function persist() {
+      let message = "";
+      try {
+        saveEditorSnapshot(editorState);
+      } catch {
+        message = "自動保存できませんでした。ブラウザの保存容量・設定を確認し、JSONで保存してください。";
+      }
+      queueMicrotask(() => {
+        if (active) setStorageError(message);
+      });
+    }
+
+    persist();
+    window.addEventListener("pagehide", persist);
+    return () => {
+      active = false;
+      window.removeEventListener("pagehide", persist);
+    };
+  }, [editorState, canAutosave]);
+
   /** コピーした時点のブロック。プロジェクトの保存データには含めない。 */
   const [copiedBlock, setCopiedBlock] = useState<ProjectBlock | null>(null);
 
@@ -262,13 +287,47 @@ export default function useProjectEditor() {
     setCopiedBlock(null);
   }
 
+  /**
+   * ページ設定を全体ごと置き換える。ブロックと編集対象の選択は保持する。
+   * @param updatedSettings - フォームから受け取った変更後のページ設定。
+   */
+  function updatePageSettings(updatedSettings: PageSettingsValue) {
+    setEditorState((currentEditorState) => {
+      const currentProject = currentEditorState.project;
+      const updatedProject: ProjectData = {
+        ...currentProject,
+        pageSettings: updatedSettings,
+      };
+
+      return {
+        project: updatedProject,
+        selectedBlockId: currentEditorState.selectedBlockId,
+      };
+    });
+  }
+
+  /** 検証済みJSONから作業を再開し、古いコピー内容をクリアする。 */
+  function replaceProject(importedProject: ProjectData) {
+    const restoredProject = parseProject(importedProject);
+    setEditorState({
+      project: restoredProject,
+      selectedBlockId: restoredProject.blocks[0]?.id ?? null,
+    });
+    setCopiedBlock(null);
+    setCanAutosave(true);
+    setStorageError("");
+  }
+
   return {
     project: editorState.project,
+    storageError,
+    replaceProject,
     selectedBlockId: editorState.selectedBlockId,
     selectedBlock,
     addBlock,
     selectBlock,
     updateBlock,
+    updatePageSettings,
     deleteBlock,
     copyBlock,
     moveBlock,

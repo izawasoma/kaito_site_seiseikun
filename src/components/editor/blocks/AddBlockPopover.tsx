@@ -60,7 +60,6 @@ export default function AddBlockPopover({ onSelect }: AddBlockPopoverProps) {
               <li key={blockOption.type}>
                 <OptionButton
                   type="button"
-                  disabled={blockOption.type !== "title" && blockOption.type !== "text"}
                   onClick={() => handleSelect(blockOption.type)}
                 >
                   <Icon name={blockOption.icon} size={20} />

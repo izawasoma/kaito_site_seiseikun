@@ -10,12 +10,12 @@ export function createTitleBlock(): TitleBlock {
   return {
     id: crypto.randomUUID(),
     type: "title",
-    simultaneous: false,
+    afterPreviousTyping: false, simultaneous: false,
     settings: {
       text: "",
       typography: {
         alignment: "left",
-        fontFamily: "Noto Sans JP",
+        fontFamily: "inherit",
         fontWeight: "medium",
         fontSize: "24",
       },

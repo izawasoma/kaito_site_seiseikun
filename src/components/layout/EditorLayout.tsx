@@ -1,5 +1,8 @@
+import { usesReaderProgress } from "@/lib/project/pageHelp";
+import { PageFontContext } from "@/components/editor/fields/FontContext";
+import { createBlock } from "@/lib/blocks/createBlock";
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import PanelSwitcher, {
   type EditorPanel,
 } from "@/components/editor/PanelSwitcher";
@@ -8,12 +11,11 @@ import AddBlockPopover, {
 } from "@/components/editor/blocks/AddBlockPopover";
 import BlockSettings from "@/components/editor/blocks/BlockSettings";
 import useProjectEditor from "@/hooks/useProjectEditor";
-import { createTitleBlock } from "@/lib/blocks/createTitleBlock";
-import { createTextBlock } from "@/lib/blocks/createTextBlock";
 import BlockList from "@/components/editor/blocks/BlockList";
 import Button from "@/components/ui/button/Button";
 import Icon from "@/components/ui/icon/Icon";
 import PreviewPanel from "@/components/preview/PreviewPanel";
+import PageSettings from "@/components/editor/page/PageSettings";
 
 type EditorLayoutProps = {
   editor: ReturnType<typeof useProjectEditor>;
@@ -21,6 +23,8 @@ type EditorLayoutProps = {
 
 /** Appで保持する編集状態を使い、設定フォームとプレビューを表示する。 */
 export default function EditorLayout({ editor }: EditorLayoutProps) {
+  const listRef = useRef<HTMLDivElement>(null);
+  const scrollAfterAdd = useRef(false);
   const [activePanel, setActivePanel] = useState<EditorPanel>("blocks");
   const {
     project,
@@ -34,22 +38,23 @@ export default function EditorLayout({ editor }: EditorLayoutProps) {
     pasteCopiedBlock,
     canPasteBlock,
     moveBlock,
+    updatePageSettings,
   } = editor;
 
   /** 選択した種類の初期データを作り、末尾へ追加して編集対象にする。 */
   function handleAddBlock(blockType: BlockType) {
-    switch (blockType) {
-      case "title":
-        addBlock(createTitleBlock());
-        break;
-      case "text":
-        addBlock(createTextBlock());
-        break;
-    }
+    scrollAfterAdd.current = true;
+    addBlock(createBlock(blockType));
   }
 
+  useLayoutEffect(() => {
+    if (!scrollAfterAdd.current || !listRef.current) return;
+    listRef.current.scrollTop = listRef.current.scrollHeight;
+    scrollAfterAdd.current = false;
+  }, [project.blocks.length]);
+
   return (
-    <Layout>
+    <PageFontContext value={project.pageSettings.defaultFontFamily}><Layout>
       <EditorArea>
         <BlockPanel aria-label="編集メニュー">
           <PanelSwitcher
@@ -58,7 +63,7 @@ export default function EditorLayout({ editor }: EditorLayoutProps) {
           />
           {activePanel === "blocks" && (
             <>
-              <BlockListScrollArea>
+              <BlockListScrollArea ref={listRef}>
                 <BlockList
                   blocks={project.blocks}
                   selectedBlockId={selectedBlockId}
@@ -73,7 +78,7 @@ export default function EditorLayout({ editor }: EditorLayoutProps) {
                 <AddBlockPopover onSelect={handleAddBlock} />
                 <PasteButton
                   disabled={!canPasteBlock}
-                  onClick={pasteCopiedBlock}
+                  onClick={() => { scrollAfterAdd.current = true; pasteCopiedBlock(); }}
                 >
                   <Icon name="content_paste" size={16} />
                   コピーした要素を末尾へ複製
@@ -88,14 +93,22 @@ export default function EditorLayout({ editor }: EditorLayoutProps) {
               key={selectedBlock.id}
               block={selectedBlock}
               onChange={updateBlock}
-              rpgTypewriterEnabled={false}
+              rpgTypewriterEnabled={project.pageSettings.displayMode === "rpg"}
+              showSimultaneous={["tap", "tapFade", "rpg"].includes(project.pageSettings.displayMode)}
+            />
+          )}
+          {activePanel === "page" && (
+            <PageSettings
+              canSaveProgress={usesReaderProgress(project)}
+              value={project.pageSettings}
+              onChange={updatePageSettings}
             />
           )}
         </SettingsPanel>
       </EditorArea>
 
       <PreviewPanel project={project} />
-    </Layout>
+    </Layout></PageFontContext>
   );
 }
 

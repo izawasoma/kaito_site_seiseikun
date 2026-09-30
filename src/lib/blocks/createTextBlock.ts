@@ -8,12 +8,13 @@ export function createTextBlock(): TextBlock {
   return {
     id: crypto.randomUUID(),
     type: "text",
-    simultaneous: false,
+    afterPreviousTyping: false, simultaneous: false,
     settings: {
       text: "",
+      textTheme: "normal",
       typography: {
         alignment: "left",
-        fontFamily: "Noto Sans JP",
+        fontFamily: "inherit",
         fontWeight: "medium",
         fontSize: "16",
       },

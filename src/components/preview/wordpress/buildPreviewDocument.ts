@@ -1,3 +1,4 @@
+import previewBridge from "./previewBridge.js?raw";
 import { autop } from "@wordpress/autop";
 import type { GeneratedProjectCode } from "@/lib/export/generateProjectCode";
 import { wordpressPcStyles, wordpressSpStyles } from "./wordpressStyles";
@@ -52,6 +53,7 @@ ${articleHtml}
 export function buildPreviewDocument(
   generatedCode: GeneratedProjectCode,
   device: PreviewDevice = "pc",
+  unlockAll = false,
 ): string {
   const environment = previewEnvironments[device];
   const wordpressStyles =
@@ -65,9 +67,10 @@ export function buildPreviewDocument(
   const wrappedPostContent = wrapPostContent(formattedPostContent, device);
 
   return `<!doctype html>
-<html lang="ja">
+<html lang="ja" data-conversation-preview-device="${device}" data-conversation-preview-unlock="${unlockAll}">
 <head>
   <meta charset="UTF-8">
+  <script>${previewBridge}</script>
   <meta name="viewport" content="${environment.viewport}">
   <title>プレビュー</title>
   <style>
