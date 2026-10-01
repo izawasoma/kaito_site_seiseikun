@@ -7,15 +7,17 @@ type CodeOutputProps = {
   label: string;
   code: string;
   filename: string;
+  additionalCopy?: { label: string; code: string };
 };
 
-export default function CodeOutput({ label, code, filename }: CodeOutputProps) {
+export default function CodeOutput({ label, code, filename, additionalCopy }: CodeOutputProps) {
   const id = useId();
   const [status, setStatus] = useState("");
 
-  async function copyCode() {
+  /** 選択した形式のコードをクリップボードへコピーする。 */
+  async function copyCode(content: string) {
     try {
-      await navigator.clipboard.writeText(code);
+      await navigator.clipboard.writeText(content);
       setStatus("コピーしました。");
     } catch {
       setStatus(
@@ -47,10 +49,16 @@ export default function CodeOutput({ label, code, filename }: CodeOutputProps) {
         <Label htmlFor={id}>{label}</Label>
 
         <Actions>
-          <ActionButton onClick={copyCode}>
-            <Icon name="file_download" size={16} />
+          <ActionButton onClick={() => copyCode(code)}>
+            <Icon name="content_copy" size={16} />
             クリップボードにコピー
           </ActionButton>
+          {additionalCopy && (
+            <ActionButton disabled={!additionalCopy.code} onClick={() => copyCode(additionalCopy.code)}>
+              <Icon name="content_copy" size={16} />
+              {additionalCopy.label}
+            </ActionButton>
+          )}
           <ActionButton onClick={downloadCode}>
             <Icon name="file_download" size={16} />
             .txtでダウンロード

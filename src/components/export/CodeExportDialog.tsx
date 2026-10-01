@@ -42,7 +42,12 @@ export default function CodeExportDialog({
         label="JavaScript"
         code={generatedCode.javascript}
         filename="kaito-javascript.txt"
+        additionalCopy={{
+          label: "<script>タグを除いてコピー",
+          code: generatedCode.javascript.replace(/^<script>/, "").replace(/<\/script>$/, ""),
+        }}
       />
+      <p>WordPressのJavaScript専用入力欄が自動でscriptタグを付ける場合は、「&lt;script&gt;タグを除いてコピー」を使用してください。</p>
       </>}
     </Dialog>
   );
