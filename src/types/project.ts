@@ -38,7 +38,7 @@ export type TextBlock = {
 };
 
 /** 現時点で追加・編集・書き出しに対応しているブロック。 */
-/** CSSとJavaScriptを独立したiframe内で実行するコードブロック。 */
+/** CSSをブロック内に限定し、JavaScriptをページ上で実行するコードブロック。 */
 export type CodeBlock = {
   id: string; type: "code"; simultaneous: boolean; afterPreviousTyping: boolean;
   settings: { html: string; css: string; javascript: string };

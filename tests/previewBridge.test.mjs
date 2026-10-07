@@ -31,4 +31,7 @@ test("プレビューは親から進捗とスクロールを復元し、ユー�
   window.scrollY = 800;
   windowEvents.load();
   assert.equal(window.scrollY, 800);
+  window.alert("確認");
+  assert.equal(messages.at(-1).type, "conversation-preview-alert");
+  assert.equal(messages.at(-1).message, "確認");
 });

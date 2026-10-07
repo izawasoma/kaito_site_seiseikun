@@ -714,7 +714,8 @@ test("コードブロックは改行・終了タグを保存し、HTMLへ実行�
   const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks: [block] };
   assert.deepEqual(parseProjectJson(JSON.stringify(project)), project);
   const code = generateProjectCode(project);
-  assert.match(code.htmlCss, /sandbox="allow-scripts allow-forms"/);
+  assert.ok(!code.htmlCss.includes("<iframe"));
+  assert.match(code.htmlCss, /data-code-settings=/);
   assert.match(code.htmlCss, /data-typewriter="false"/);
   assert.ok(!code.htmlCss.includes('<h1>例</h1>'));
   const formatted = autop(code.htmlCss + '\n' + code.javascript);
@@ -723,20 +724,28 @@ test("コードブロックは改行・終了タグを保存し、HTMLへ実行�
   assert.doesNotThrow(() => new vm.Script(runtime));
 });
 
-test("コードiframeの高さ更新は送信元を検証し、ユーザーコードの改行を保持する", () => {
+test("コードCSSは解析した表示規則のみをブロックのscope内に配置する", () => {
   const source = readFileSync(new URL('../src/lib/export/runtime/codeBlocks.js', import.meta.url), 'utf8');
-  const frame = { dataset: { codeSettings: JSON.stringify({ html: '<p>内容</p>', css: 'p{color:red}', javascript: '// comment\nconsole.log("ok");' }) }, contentWindow: {}, style: {} };
-  let receive;
-  const context = { window: { addEventListener: (_name, handler) => { receive = handler; } } };
-  vm.createContext(context); vm.runInContext(source, context);
-  context.initializeCodeBlocks({ querySelectorAll: () => [frame] });
-  const childScript = frame.srcdoc.match(/<script>([\s\S]*?)<\/script>/)[1];
-  assert.doesNotThrow(() => new vm.Script(childScript));
-  assert.ok(childScript.includes('comment\\n'));
-  receive({ source: {}, data: { type: 'conversation-code-height', height: 300 } });
-  assert.equal(frame.style.height, undefined);
-  receive({ source: frame.contentWindow, data: { type: 'conversation-code-height', height: 300 } });
-  assert.equal(frame.style.height, '300px');
-  receive({ source: frame.contentWindow, data: { type: 'conversation-code-height', height: -1 } });
-  assert.equal(frame.style.height, '300px');
+  const style = { type: 1, cssText: 'p, button { color: red; }' };
+  const context = vm.createContext({ CSSRule: { STYLE_RULE: 1 }, CSSStyleSheet: class {
+    replaceSync() { this.cssRules = [style, { type: 4, cssText: '@media (min-width: 600px) { p {color:red} }', cssRules: [style] }, { type: 3, cssText: '@import "outside.css";' }, { type: 5, cssText: '@font-face {font-family:outside}' }]; }
+  } });
+  vm.runInContext(source, context);
+  const css = context.scopeConversationCss('input', '[data-block-id="example"]');
+  assert.match(css, /^@scope \(\[data-block-id="example"\]\)/);
+  assert.match(css, /@media/);
+  assert.ok(!css.includes('outside'));
+});
+
+test("コードは同じページへ一度だけ配置し、JavaScriptの改行を維持する", () => {
+  const source = readFileSync(new URL('../src/lib/export/runtime/codeBlocks.js', import.meta.url), 'utf8');
+  const block = { dataset: { blockId: 'code1', codeSettings: JSON.stringify({ html: '<button>押す</button>', css: '', javascript: '// comment\nwindow.runs = (window.runs || 0) + 1;' }) }, nodes: [], append(node) { this.nodes.push(node); if (node.tag === 'script') vm.runInContext(node.textContent, context); }, prepend(node) { this.nodes.unshift(node); } };
+  const document = { createElement(tag) { return tag === 'template' ? { content: { querySelectorAll: () => [] } } : { tag }; } };
+  const context = vm.createContext({ document, window: {}, CSS: { escape: (value) => value }, CSSRule: { STYLE_RULE: 1 }, CSSStyleSheet: class { cssRules = []; replaceSync() {} } });
+  vm.runInContext(source, context);
+  const root = { querySelectorAll: () => [block] };
+  context.initializeCodeBlocks(root);
+  context.initializeCodeBlocks(root);
+  assert.equal(context.window.runs, 1);
+  assert.equal(block.nodes.filter((node) => node.tag === 'script').length, 1);
 });

@@ -1,6 +1,8 @@
 /** sandboxを維持したまま、編集前のスクロールと進行状態を親画面と受け渡す。 */
 (function () {
   window.__conversationPreviewReady = false;
+  /** プレビューのalertだけを親画面に表示する。戻り値を持つconfirm/promptは代行しない。 */
+  window.alert = (message) => parent.postMessage({ type: "conversation-preview-alert", message: String(message ?? "") }, "*");
   let restoring = true;
   let interacted = false;
   function report() {

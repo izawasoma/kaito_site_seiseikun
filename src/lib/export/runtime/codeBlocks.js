@@ -1,19 +1,54 @@
-/** コードを別文書で実行し、CSS・DOM操作を他ブロックから分離する。 */
+/** CSSをブラウザで解析し、ブロック外へ作用する規則を取り除く。 */
+function scopeConversationCss(css, selector) {
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(css);
+  /** グローバルな定義・外部CSSの読み込みは許可せず、表示規則だけを残す。 */
+  function localRules(rules) {
+    return Array.from(rules).map((rule) => {
+      if (rule.type === CSSRule.STYLE_RULE) return rule.cssText;
+      if (rule.cssRules && /^(?:@media|@supports|@container|@layer)\b/.test(rule.cssText)) {
+        return rule.cssText.slice(0, rule.cssText.indexOf("{") + 1) + localRules(rule.cssRules) + "}";
+      }
+      return "";
+    }).join(" ");
+  }
+  return `@scope (${selector}) { ${localRules(sheet.cssRules)} }`;
+}
+
+/** 同一ページ内へHTMLを配置し、CSSだけを限定してJavaScriptを実行する。 */
 function initializeCodeBlocks(root) {
-  const frames = Array.from(root.querySelectorAll("iframe[data-code-settings]"));
-  if (!frames.length) return;
-  window.addEventListener("message", (event) => {
-    const frame = frames.find((candidate) => candidate.contentWindow === event.source);
-    if (!frame || event.data?.type !== "conversation-code-height") return;
-    const height = event.data.height;
-    if (typeof height === "number" && Number.isFinite(height) && height >= 0 && height <= 100000) frame.style.height = `${Math.max(1, Math.ceil(height))}px`;
-  });
-  frames.forEach((frame) => {
+  const blocks = Array.from(root.querySelectorAll(":scope > [data-code-settings]"));
+  /** 先に全ブロックのHTMLを用意し、別ブロックを参照するコードも実行可能にする。 */
+  const executions = [];
+  blocks.forEach((block) => {
+    if (block.dataset.codeInitialized === "true") return;
     let settings;
-    try { settings = JSON.parse(frame.dataset.codeSettings); } catch { return; }
-    /** HTMLのscript終了タグとして解釈されないようJSON内の小なり記号を退避する。 */
-    const data = JSON.stringify(settings).replace(/</g, "\\u003c");
-    const bootstrap = `const settings=${data}; const defaults=document.createElement('style'); defaults.textContent=settings.defaultCss || ''; document.head.append(defaults); const style=document.createElement('style'); style.textContent=settings.css; document.head.append(style); document.body.innerHTML=settings.html; document.body.querySelectorAll('script').forEach(old=>{const script=document.createElement('script'); for(const attr of old.attributes)script.setAttribute(attr.name,attr.value); script.textContent=old.textContent; old.replaceWith(script);}); const report=()=>parent.postMessage({type:'conversation-code-height',height:document.body.getBoundingClientRect().height},'*'); new ResizeObserver(report).observe(document.body); addEventListener('load',report); report(); const script=document.createElement('script'); script.textContent=settings.javascript; document.body.append(script);`;
-    frame.srcdoc = '\x3c!doctype html>\x3chtml>\x3chead>\x3cmeta charset="UTF-8">\x3cmeta name="viewport" content="width=device-width,initial-scale=1">\x3cstyle>html{margin:0;padding:0}body{display:flow-root;margin:0;padding:0;min-height:0;overflow-wrap:anywhere}img{max-width:100%;height:auto}\x3c/style>\x3c/head>\x3cbody>\x3cscript>' + bootstrap + '\x3c/scr' + 'ipt>\x3c/body>\x3c/html>';
+    try { settings = JSON.parse(block.dataset.codeSettings); } catch { return; }
+    block.dataset.codeInitialized = "true";
+    const template = document.createElement("template");
+    template.innerHTML = settings.html;
+    const styles = [settings.css];
+    template.content.querySelectorAll("style").forEach((style) => { styles.push(style.textContent); style.remove(); });
+    template.content.querySelectorAll('link[rel~="stylesheet"],base').forEach((element) => element.remove());
+    const scripts = Array.from(template.content.querySelectorAll("script"));
+    scripts.forEach((script) => script.remove());
+    block.append(template.content);
+    const selector = `[data-block-id="${CSS.escape(block.dataset.blockId)}"]`;
+    const style = document.createElement("style");
+    try { style.textContent = scopeConversationCss(styles.join("\n"), selector); }
+    catch (error) { console.error("コードブロックのCSSを適用できませんでした。", error); }
+    block.prepend(style);
+    executions.push({ block, scripts, javascript: settings.javascript });
+  });
+  executions.forEach(({ block, scripts, javascript }) => {
+    scripts.forEach((original) => {
+      const script = document.createElement("script");
+      for (const attribute of original.attributes) script.setAttribute(attribute.name, attribute.value);
+      script.textContent = original.textContent;
+      block.append(script);
+    });
+    const script = document.createElement("script");
+    script.textContent = javascript;
+    block.append(script);
   });
 }

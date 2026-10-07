@@ -44,6 +44,9 @@ export default function WordPressPreview({ project, device, unlockAll = false }:
   useEffect(() => {
     function receive(event: MessageEvent) {
       if (event.source !== frameRef.current?.contentWindow) return;
+      if (event.data?.type === "conversation-preview-alert" && typeof event.data.message === "string") {
+        window.alert(event.data.message);
+      }
       if (event.data?.type === "conversation-preview-state" && Number.isFinite(event.data.scrollY)) {
         snapshot.current = { scrollY: event.data.scrollY, progress: event.data.progress };
       }

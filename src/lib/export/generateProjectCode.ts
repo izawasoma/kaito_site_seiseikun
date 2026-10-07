@@ -46,7 +46,7 @@ export function generateProjectCode(
       if (typography) typography.fontWeight = supportedFontWeight(typography.fontFamily === "inherit" ? project.pageSettings.defaultFontFamily : typography.fontFamily, typography.fontWeight);
     }
     switch (projectBlock.type) {
-      case "code": return renderCodeHtml(projectBlock, project.pageSettings);
+      case "code": return renderCodeHtml(projectBlock);
       case "icon": return renderIconHtml(projectBlock);
       case "image": return renderImageHtml(projectBlock);
       case "button": return renderButtonHtml(projectBlock);
