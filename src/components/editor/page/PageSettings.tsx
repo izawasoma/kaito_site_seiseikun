@@ -1,5 +1,6 @@
 import { getDefaultLectureText, updateDefaultLecture } from "@/lib/project/pageHelp";
-import TextAreaField from "@/components/ui/form/TextAreaField";
+import DecoratedTextField from "@/components/editor/fields/DecoratedTextField";
+import { parseDecoratedText } from "@/lib/export/renderDecoratedText";
 import Button from "@/components/ui/button/Button";
 import FontSelectField from "@/components/editor/fields/FontSelectField";
 import styled from "styled-components";
@@ -96,7 +97,7 @@ export default function PageSettings({ value, onChange, canSaveProgress = value.
             <Button onClick={() => {
               if (window.confirm("編集したレクチャー本文を破棄して、デフォルトの文言に戻しますか？")) onChange({ ...value, lectureText: getDefaultLectureText(value.displayMode) });
             }}>デフォルトの文言に戻す</Button>
-            <TextAreaField label="レクチャー本文" rows={12} value={value.lectureText} onChange={(event) => onChange({ ...value, lectureText: event.target.value })} />
+            <DecoratedTextField label="レクチャー本文" multiline rows={12} value={value.lectureText} onChange={(lectureText) => onChange({ ...value, lectureText })} error={parseDecoratedText(value.lectureText).errors[0]} />
           </>}
         </LectureGroup>
       </FormSection>

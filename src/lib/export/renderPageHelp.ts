@@ -1,11 +1,11 @@
 import type { ProjectData } from "@/types/project";
-import { escapeHtml } from "./escapeHtml";
+import { renderDecoratedText } from "./renderDecoratedText";
 import { usesReaderProgress } from "@/lib/project/pageHelp";
 
-/** 入力された案内はHTMLとして実行せず、改行だけを表示に反映する。 */
+/** 案内のルビ・色・太字・改行を共通の装飾処理で変換し、任意HTMLは実行しない。 */
 export function renderLecture(project: ProjectData): string {
   if (!project.pageSettings.showLecture) return "";
-  const text = escapeHtml(project.pageSettings.lectureText).replace(/\r?\n/g, '<br data-conversation-break="">');
+  const text = renderDecoratedText(project.pageSettings.lectureText);
   return `<aside class="conversation-lecture" aria-label="このページの遊び方"><div class="conversation-lecture-heading">このページの遊び方</div><div>${text}</div></aside>`;
 }
 

@@ -1,4 +1,3 @@
-import TextField from "@/components/ui/form/TextField";
 import RadioGroup from "@/components/ui/form/RadioGroup";
 import DecoratedTextField from "@/components/editor/fields/DecoratedTextField";
 import ActionFields from "@/components/editor/fields/ActionFields";
@@ -12,12 +11,12 @@ export default function AnswerCommonFields({ value, onChange }: {
 }) {
   return <>
     <DecoratedTextField label="入力注意事項" helperText="空欄で非表示" value={value.instruction} onChange={(instruction) => onChange({ ...value, instruction })} />
-    <TextField label="送信ボタンラベル" required value={value.submitLabel} onChange={(event) => onChange({ ...value, submitLabel: event.target.value })} />
-    <TextField label="正解時メッセージ" helperText="空欄で非表示" value={value.successMessage} onChange={(event) => onChange({ ...value, successMessage: event.target.value })} />
-    <TextField label="不正解時メッセージ" required value={value.errorMessage} onChange={(event) => onChange({ ...value, errorMessage: event.target.value })} />
+    <DecoratedTextField label="送信ボタンラベル" required value={value.submitLabel} onChange={(submitLabel) => onChange({ ...value, submitLabel })} />
+    <DecoratedTextField label="正解時メッセージ" helperText="空欄で非表示" value={value.successMessage} onChange={(successMessage) => onChange({ ...value, successMessage })} />
+    <DecoratedTextField label="不正解時メッセージ" required value={value.errorMessage} onChange={(errorMessage) => onChange({ ...value, errorMessage })} />
     <RadioGroup label="不正解時アニメーション" value={value.animation} options={[{ value: "shake", label: "横揺れ" }, { value: "none", label: "なし" }]} onValueChange={(animation) => { if (animation === "shake" || animation === "none") onChange({ ...value, animation }); }} />
     <ActionFields value={value.action} onChange={(action) => onChange({ ...value, action })} urlError={value.action.type === "link" && !getLinkUrl(value.action.url) ? "有効な遷移先URLを入力してください" : undefined} />
-    {value.action.type === "link" && value.action.allowRepeat && <TextField label="正解後のラベル" required value={value.successLabel} onChange={(event) => onChange({ ...value, successLabel: event.target.value })} />}
+    {value.action.type === "link" && value.action.allowRepeat && <DecoratedTextField label="正解後のラベル" required value={value.successLabel} onChange={(successLabel) => onChange({ ...value, successLabel })} />}
     <TypographyFields value={value.typography} onChange={(typography) => onChange({ ...value, typography })} />
   </>;
 }

@@ -18,7 +18,7 @@ export function renderSpeechHtml(block: SpeechBlock): string {
     `<div class="conversation-speech conversation-speech--${variant}" ${renderBlockAttributes(block)} style="${style}">`,
     `<div class="conversation-speech-avatar">${avatar}</div>`,
     '<div class="conversation-speech-content">',
-    `<div class="conversation-speech-name">${escapeHtml(settings.characterName)}</div>`,
+    `<div class="conversation-speech-name">${renderDecoratedText(settings.characterName)}</div>`,
     '<div class="conversation-speech-bubble">',
     `<p class="conversation-speech-message" data-typewriter-content>${renderDecoratedText(settings.text)}</p>`,
     "</div></div></div>",

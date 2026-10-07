@@ -1,3 +1,4 @@
+import DecoratedTextField from "./DecoratedTextField";
 import styled from "styled-components";
 import Button from "@/components/ui/button/Button";
 import IconButton from "@/components/ui/button/IconButton";
@@ -69,13 +70,13 @@ export default function ChoiceListEditor({
       <Rows>
         {value.map((choice, index) => (
           <Row key={choice.id}>
-            <ChoiceInput
+            {mode === "multiple" ? <DecoratedTextField label={`選択肢${index + 1}のラベル`} value={choice.label} onChange={(label) => updateLabel(choice.id, label)} disabled={disabled} /> : <ChoiceInput
               type="text"
               aria-label={`選択肢${index + 1}のラベル`}
               value={choice.label}
               onChange={(event) => updateLabel(choice.id, event.target.value)}
               disabled={disabled}
-            />
+            />}
 
             <Checkbox
               label=""

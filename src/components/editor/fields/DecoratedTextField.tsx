@@ -12,6 +12,7 @@ type DecoratedTextFieldProps = FieldDescription & {
   value: string;
   onChange: (value: string) => void;
   multiline?: boolean;
+  rows?: number;
   disabled?: boolean;
 };
 
@@ -23,6 +24,7 @@ export default function DecoratedTextField({
   value,
   onChange,
   multiline = false,
+  rows = 5,
   disabled = false,
 }: DecoratedTextFieldProps) {
   const id = useId();
@@ -118,7 +120,7 @@ export default function DecoratedTextField({
             ref={(element) => {
               fieldRef.current = element;
             }}
-            rows={5}
+            rows={rows}
             onChange={(event) => onChange(event.target.value)}
           />
         ) : (

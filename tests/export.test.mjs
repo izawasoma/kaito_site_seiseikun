@@ -749,3 +749,44 @@ test("コードは同じページへ一度だけ配置し、JavaScriptの改行�
   assert.equal(context.window.runs, 1);
   assert.equal(block.nodes.filter((node) => node.tag === 'script').length, 1);
 });
+
+test("レクチャーのルビ・色・太字を変換し、装飾を保存・復元できる", () => {
+  const project = { schemaVersion: 1, pageSettings: { ...createPageSettings(), showLecture: true, lectureText: '<red><bold><ruby="あそ">遊</ruby>び方</bold></red>\n本文' }, blocks: [createTitleBlock()] };
+  assert.deepEqual(parseProjectJson(JSON.stringify(project)), project);
+  const html = generateProjectCode(project).htmlCss;
+  assert.match(html, /<ruby>遊<rp>（<\/rp><rt>あそ<\/rt>/);
+  assert.match(html, /<strong style="font-weight: 700">/);
+  assert.match(html, /<br data-conversation-break="">本文/);
+});
+
+test("レクチャー有効時だけ未完の装飾を公開前に検出する", () => {
+  const project = { schemaVersion: 1, pageSettings: { ...createPageSettings(), showLecture: true, lectureText: '<bold>案内' }, blocks: [] };
+  assert.ok(validateProject(project).some((error) => error.startsWith('レクチャー本文：')));
+  project.pageSettings.showLecture = false;
+  assert.ok(!validateProject(project).some((error) => error.startsWith('レクチャー本文：')));
+});
+
+test("回答ラベル・前後文章・各ボタン・キャラクター名にルビを出力する", async () => {
+  const { renderAnswerHtml } = await import("../src/lib/export/blocks/renderAnswerHtml.ts");
+  const { renderButtonHtml } = await import("../src/lib/export/blocks/renderVisualBlocks.ts");
+  const { renderSpeechHtml } = await import("../src/lib/export/blocks/renderSpeechHtml.ts");
+  const ruby = '<ruby="こたえ">答</ruby>';
+  const answer = createBlock('answer');
+  Object.assign(answer.settings, { submitLabel: ruby, successLabel: ruby, successMessage: ruby, errorMessage: '<img src=x onerror=alert(1)>' });
+  Object.assign(answer.settings.answer, { label: ruby, beforeText: ruby, afterText: ruby });
+  const html = renderAnswerHtml(answer);
+  assert.match(html, /aria-label="答"/);
+  assert.equal((html.match(/<ruby>/g) || []).length, 4);
+  const attribute = html.match(/data-answer-config="([^"]*)"/)[1];
+  const config = JSON.parse(attribute.replaceAll('&quot;', '"').replaceAll('&#39;', "'").replaceAll('&lt;', '<').replaceAll('&gt;', '>').replaceAll('&amp;', '&'));
+  assert.match(config.successHtml, /<ruby>/);
+  assert.match(config.successLabelHtml, /<ruby>/);
+  assert.ok(!config.errorHtml.includes('<img'));
+  answer.settings.answer.type = 'multiple';
+  answer.settings.answer.choices = [{ id: 'a', label: ruby, correct: true }];
+  assert.match(renderAnswerHtml(answer), /<span><ruby>/);
+  const button = createBlock('button'); button.settings.text = ruby;
+  assert.match(renderButtonHtml(button), /<ruby>/);
+  const speech = createBlock('speech'); speech.settings.characterName = ruby;
+  assert.match(renderSpeechHtml(speech), /conversation-speech-name"><ruby>/);
+});

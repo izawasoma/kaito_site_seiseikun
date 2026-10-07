@@ -54,7 +54,8 @@ function initializeAnswers(blocks, progress, onUnlock) {
         disableControls(true);
         if (allowRepeat) {
           const submit = block.querySelector(".conversation-submit");
-          submit.textContent = config.successLabel || "次へ";
+          if (typeof config.successLabelHtml === "string") submit.innerHTML = config.successLabelHtml;
+          else submit.textContent = config.successLabel || "次へ";
           submit.disabled = false;
         }
       }
@@ -80,7 +81,8 @@ function initializeAnswers(blocks, progress, onUnlock) {
       });
       disableControls(false);
       if (progress.cleared(block)) {
-        feedback.textContent = config.successMessage ?? "正解です";
+        if (typeof config.successHtml === "string") feedback.innerHTML = config.successHtml;
+        else feedback.textContent = config.successMessage ?? "正解です";
         feedback.dataset.correct = "true";
         showCompletedControls();
       }
@@ -137,7 +139,9 @@ function initializeAnswers(blocks, progress, onUnlock) {
             if (!correct && config.individual && config.animation === "shake") shakeAnswer(row);
           });
           const success = results.length > 0 && results.every(Boolean);
-          feedback.textContent = success ? (config.successMessage ?? "正解です") : config.errorMessage;
+          const messageHtml = success ? config.successHtml : config.errorHtml;
+          if (typeof messageHtml === "string") feedback.innerHTML = messageHtml;
+          else feedback.textContent = success ? (config.successMessage ?? "正解です") : config.errorMessage;
           feedback.dataset.correct = String(success);
           disableControls(success);
           if (success) { showCompletedControls(); complete(block, config.action); }

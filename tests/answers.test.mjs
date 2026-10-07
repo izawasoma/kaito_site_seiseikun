@@ -372,3 +372,16 @@ test("通常ボタンの再遷移ONは実行後も押せるが、次のブロッ
     assert.equal(runtime.navigations.length, type === "link" ? 2 : 0);
   }
 });
+
+test("判定メッセージと正解後ラベルの装飾は再試行・復元でも保持する", () => {
+  const options = { action: { type: 'link', url: '/next', allowRepeat: true }, errorHtml: '<strong>違います</strong>', successHtml: '<ruby>正解<rt>せいかい</rt></ruby>', successLabelHtml: '<ruby>次<rt>つぎ</rt></ruby>へ' };
+  const form = answerHarness(false, true, null, null, options);
+  form.inputs[0].value = 'wrong'; form.send(); form.tick();
+  assert.equal(form.feedback.innerHTML, options.errorHtml);
+  form.inputs[0].value = 'a'; form.send(); form.tick();
+  assert.equal(form.feedback.innerHTML, options.successHtml);
+  assert.equal(form.submit.innerHTML, options.successLabelHtml);
+  const restored = answerHarness(false, true, JSON.stringify(form.writes.at(-1).value), null, options);
+  assert.equal(restored.feedback.innerHTML, options.successHtml);
+  assert.equal(restored.submit.innerHTML, options.successLabelHtml);
+});

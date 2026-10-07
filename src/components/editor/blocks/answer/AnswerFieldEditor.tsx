@@ -1,3 +1,4 @@
+import DecoratedTextField from "@/components/editor/fields/DecoratedTextField";
 import SelectField from "@/components/ui/form/SelectField";
 import TextField from "@/components/ui/form/TextField";
 import AnswerCandidatesField from "@/components/editor/fields/AnswerCandidatesField";
@@ -15,10 +16,10 @@ export default function AnswerFieldEditor({ value, onChange, showLabel = false }
       const choices = type === "single" ? value.choices.map((choice) => ({ ...choice, correct: choice.id === firstCorrectId })) : value.choices;
       onChange({ ...value, type, choices });
     }} />
-    {showLabel && <TextField label="解答欄ラベル" required value={value.label} onChange={(event) => onChange({ ...value, label: event.target.value })} />}
+    {showLabel && <DecoratedTextField label="解答欄ラベル" required value={value.label} onChange={(label) => onChange({ ...value, label })} />}
     {value.type !== "multiple" && <>
-      <TextField label="入力欄前の文章" helperText="空欄で非表示" value={value.beforeText} onChange={(event) => onChange({ ...value, beforeText: event.target.value })} />
-      <TextField label="入力欄後ろの文章" helperText="空欄で非表示" value={value.afterText} onChange={(event) => onChange({ ...value, afterText: event.target.value })} />
+      <DecoratedTextField label="入力欄前の文章" helperText="空欄で非表示" value={value.beforeText} onChange={(beforeText) => onChange({ ...value, beforeText })} />
+      <DecoratedTextField label="入力欄後ろの文章" helperText="空欄で非表示" value={value.afterText} onChange={(afterText) => onChange({ ...value, afterText })} />
     </>}
     {value.type === "text" ? <>
       <TextField label="プレースホルダー" value={value.placeholder} onChange={(event) => onChange({ ...value, placeholder: event.target.value })} />

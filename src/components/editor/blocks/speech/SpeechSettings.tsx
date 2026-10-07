@@ -62,11 +62,11 @@ export default function SpeechSettings({
           onChange={(event) => onChange({ ...value, imageUrl: event.target.value })}
           error={imageError}
         />
-        <TextField
+        <DecoratedTextField
           label="キャラクター名"
           required
           value={value.characterName}
-          onChange={(event) => onChange({ ...value, characterName: event.target.value })}
+          onChange={(characterName) => onChange({ ...value, characterName })}
           error={value.characterName.trim() ? undefined : "キャラクター名は必須項目です"}
         />
         <DecoratedTextField

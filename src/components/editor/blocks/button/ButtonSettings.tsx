@@ -1,7 +1,7 @@
+import DecoratedTextField from "@/components/editor/fields/DecoratedTextField";
 import SettingsPanelHeader from "@/components/editor/SettingsPanelHeader";
 import FormSection from "@/components/ui/form/FormSection";
 import ColorField from "@/components/ui/form/ColorField";
-import TextField from "@/components/ui/form/TextField";
 import ActionFields from "@/components/editor/fields/ActionFields";
 import TypographyFields from "@/components/editor/fields/TypographyFields";
 import type { ButtonBlock } from "@/types/project";
@@ -17,7 +17,7 @@ export default function ButtonSettings({ value, onChange }: {
     <FormSection title="表示設定">
       <ColorField label="背景色" value={value.backgroundColor} onValueChange={(backgroundColor) => onChange({ ...value, backgroundColor })} />
       <ColorField label="文字色" value={value.textColor} onValueChange={(textColor) => onChange({ ...value, textColor })} />
-      <TextField label="ラベル" required value={value.text} onChange={(event) => onChange({ ...value, text: event.target.value })} />
+      <DecoratedTextField label="ラベル" required value={value.text} onChange={(text) => onChange({ ...value, text })} />
       <TypographyFields value={value.typography} onChange={(typography) => onChange({ ...value, typography })} />
     </FormSection>
   </>;
