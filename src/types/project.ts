@@ -38,7 +38,13 @@ export type TextBlock = {
 };
 
 /** 現時点で追加・編集・書き出しに対応しているブロック。 */
-export type ProjectBlock = TitleBlock | TextBlock | SpeechBlock | IconBlock | ImageBlock | ButtonBlock | AnswerBlock | MultiAnswerBlock;
+/** CSSとJavaScriptを独立したiframe内で実行するコードブロック。 */
+export type CodeBlock = {
+  id: string; type: "code"; simultaneous: boolean; afterPreviousTyping: boolean;
+  settings: { html: string; css: string; javascript: string };
+};
+
+export type ProjectBlock = CodeBlock | TitleBlock | TextBlock | SpeechBlock | IconBlock | ImageBlock | ButtonBlock | AnswerBlock | MultiAnswerBlock;
 
 /** 単一回答と多答回答で共用する、1つの解答欄。 */
 export type AnswerFieldValue = {

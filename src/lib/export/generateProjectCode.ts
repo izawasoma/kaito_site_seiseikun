@@ -1,3 +1,4 @@
+import { renderCodeHtml } from "./blocks/renderCodeHtml";
 import { renderLecture, renderProgressFooter } from "./renderPageHelp";
 import { pageHelpStyles } from "./pageHelpStyles";
 import { supportedFontWeight } from "@/lib/fonts/fontWeights";
@@ -45,6 +46,7 @@ export function generateProjectCode(
       if (typography) typography.fontWeight = supportedFontWeight(typography.fontFamily === "inherit" ? project.pageSettings.defaultFontFamily : typography.fontFamily, typography.fontWeight);
     }
     switch (projectBlock.type) {
+      case "code": return renderCodeHtml(projectBlock, project.pageSettings);
       case "icon": return renderIconHtml(projectBlock);
       case "image": return renderImageHtml(projectBlock);
       case "button": return renderButtonHtml(projectBlock);
@@ -77,6 +79,6 @@ export function generateProjectCode(
 
   return {
     htmlCss,
-    javascript: !renderProgressFooter(project) && project.pageSettings.displayMode === "normal" && !project.blocks.some((block) => ["answer", "multiAnswer", "button"].includes(block.type)) ? "" : generateRuntimeScript(),
+    javascript: !renderProgressFooter(project) && project.pageSettings.displayMode === "normal" && !project.blocks.some((block) => ["answer", "multiAnswer", "button", "code"].includes(block.type)) ? "" : generateRuntimeScript(),
   };
 }

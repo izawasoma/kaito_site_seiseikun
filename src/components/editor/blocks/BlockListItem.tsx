@@ -7,6 +7,7 @@ import type { ProjectBlock } from "@/types/project";
 import { getImageUrl } from "@/lib/getImageUrl";
 
 const blockAppearances = {
+  code: { label: "HTMLコード", icon: "code" },
   icon: { label: "アイコンカード", icon: "dashboard" },
   image: { label: "画像", icon: "image" },
   button: { label: "ボタン", icon: "ads_click" },

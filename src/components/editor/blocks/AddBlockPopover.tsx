@@ -13,6 +13,7 @@ const blockOptions = [
   { type: "multiAnswer", label: "多答回答欄", icon: "checklist" },
   { type: "image", label: "画像", icon: "image" },
   { type: "button", label: "ボタン", icon: "ads_click" },
+  { type: "code", label: "HTMLコード", icon: "code" },
 ] as const;
 
 export type BlockType = (typeof blockOptions)[number]["type"];

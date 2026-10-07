@@ -707,3 +707,36 @@ test("画像候補は編集データのみ・登録キャラクターのみのUR
   assert.deepEqual(collectImageUrls({ ...project, blocks: [] }, characters), [speech.settings.imageUrl, "https://example.com/stored.png"]);
   assert.deepEqual(collectImageUrls(project, []), [image.settings.url, speech.settings.imageUrl]);
 });
+
+test("コードブロックは改行・終了タグを保存し、HTMLへ実行コードを直接混入させない", () => {
+  const block = createBlock("code");
+  block.settings = { html: '<h1>例</h1>\n<script>console.log("HTML")</script>', css: 'body {color:red}\n/* CSS */', javascript: '// コメント\nconst text = "</script>";\nconsole.log(text);' };
+  const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks: [block] };
+  assert.deepEqual(parseProjectJson(JSON.stringify(project)), project);
+  const code = generateProjectCode(project);
+  assert.match(code.htmlCss, /sandbox="allow-scripts allow-forms"/);
+  assert.match(code.htmlCss, /data-typewriter="false"/);
+  assert.ok(!code.htmlCss.includes('<h1>例</h1>'));
+  const formatted = autop(code.htmlCss + '\n' + code.javascript);
+  const runtime = formatted.match(/<script>([\s\S]*?)<\/script>/)[1];
+  assert.equal(runtime, code.javascript.slice(8, -9));
+  assert.doesNotThrow(() => new vm.Script(runtime));
+});
+
+test("コードiframeの高さ更新は送信元を検証し、ユーザーコードの改行を保持する", () => {
+  const source = readFileSync(new URL('../src/lib/export/runtime/codeBlocks.js', import.meta.url), 'utf8');
+  const frame = { dataset: { codeSettings: JSON.stringify({ html: '<p>内容</p>', css: 'p{color:red}', javascript: '// comment\nconsole.log("ok");' }) }, contentWindow: {}, style: {} };
+  let receive;
+  const context = { window: { addEventListener: (_name, handler) => { receive = handler; } } };
+  vm.createContext(context); vm.runInContext(source, context);
+  context.initializeCodeBlocks({ querySelectorAll: () => [frame] });
+  const childScript = frame.srcdoc.match(/<script>([\s\S]*?)<\/script>/)[1];
+  assert.doesNotThrow(() => new vm.Script(childScript));
+  assert.ok(childScript.includes('comment\\n'));
+  receive({ source: {}, data: { type: 'conversation-code-height', height: 300 } });
+  assert.equal(frame.style.height, undefined);
+  receive({ source: frame.contentWindow, data: { type: 'conversation-code-height', height: 300 } });
+  assert.equal(frame.style.height, '300px');
+  receive({ source: frame.contentWindow, data: { type: 'conversation-code-height', height: -1 } });
+  assert.equal(frame.style.height, '300px');
+});

@@ -125,6 +125,7 @@ function readBlock(value: unknown): ProjectBlock {
     return { id, type: "multiAnswer", simultaneous, afterPreviousTyping, settings: { ...readAnswerCommon(settings), answers,
       showIndividualResults: boolean(settings.showIndividualResults, "個別判定") } };
   }
+  if (block.type === "code") return { id, type: "code", simultaneous, afterPreviousTyping, settings: { html: string(settings.html, "HTML"), css: string(settings.css, "CSS"), javascript: string(settings.javascript, "JavaScript") } };
   const text = string(settings.text, "本文");
   const typography = readTypography(settings.typography);
   switch (block.type) {

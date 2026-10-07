@@ -52,6 +52,8 @@ html[data-conversation-preview-device="sp"] .conversation-page {
   line-height: 1.5;
 }
 
+.conversation-page .conversation-code { margin: 0 0 calc(18px * var(--conversation-scale, 1)); }
+
 .conversation-page [hidden] {
   display: none !important;
 }

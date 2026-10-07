@@ -1,3 +1,5 @@
+import CodeSettingsLoading from "./code/CodeSettingsLoading";
+import { lazy, Suspense } from "react";
 import { validateBlock } from "@/lib/project/validateProject";
 import styled from "styled-components";
 import IconSettings from "./icon/IconSettings";
@@ -14,6 +16,8 @@ import SpeechSettings from "./speech/SpeechSettings";
 import type { ProjectBlock } from "@/types/project";
 import { parseDecoratedText } from "@/lib/export/renderDecoratedText";
 
+const CodeSettings = lazy(() => import("./code/CodeSettings"));
+
 type BlockSettingsProps = {
   block: ProjectBlock;
   onChange: (updatedBlock: ProjectBlock) => void;
@@ -29,6 +33,7 @@ function BlockSettingsForm({
 }: BlockSettingsProps) {
   if (block.type !== "speech" && block.type !== "title" && block.type !== "text") {
     return <>
+      {block.type === "code" && <Suspense fallback={<CodeSettingsLoading />}><CodeSettings value={block.settings} onChange={(settings) => onChange({ ...block, settings })} /></Suspense>}
       {block.type === "icon" && <IconSettings value={block.settings} onChange={(settings) => onChange({ ...block, settings })} />}
       {block.type === "button" && <ButtonSettings value={block.settings} onChange={(settings) => onChange({ ...block, settings })} />}
       {(block.type === "answer" || block.type === "multiAnswer") && <AnswerSettings block={block} onChange={onChange} />}

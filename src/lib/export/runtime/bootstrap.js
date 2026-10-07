@@ -14,6 +14,7 @@ function initializeConversationPages() {
     const controller = mode === "tap" || mode === "tapFade" || mode === "rpg"
       ? initializeTapProgress(root, blocks, mode, interval, progress)
       : initializeStaticProgress(blocks, mode, progress);
+    initializeCodeBlocks(root);
     initializeAnswers(blocks, progress, (block) => controller?.unlock(block));
     initializeProgressReset(root, progress);
   });

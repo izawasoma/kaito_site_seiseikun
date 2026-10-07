@@ -25,6 +25,7 @@ function answerDefaults(): AnswerCommonSettings {
 export function createBlock(type: ProjectBlock["type"]): ProjectBlock {
   const base = { id: crypto.randomUUID(), afterPreviousTyping: false, simultaneous: false };
   switch (type) {
+    case "code": return { ...base, type, settings: { html: "", css: "", javascript: "" } };
     case "speech": return createSpeechBlock();
     case "title": return createTitleBlock();
     case "text": return createTextBlock();
