@@ -64,7 +64,7 @@ function readPageSettings(value: unknown): PageSettingsValue {
 /** アクションの構造を検証する。URLの入力途中は保存可能。 */
 function readAction(value: unknown) {
   const action = record(value, "アクション");
-  return { type: choice(action.type, ["next", "link"], "アクション種別"), url: string(action.url, "遷移先URL") };
+  return { type: choice(action.type, ["next", "link"], "アクション種別"), url: string(action.url, "遷移先URL"), allowRepeat: action.allowRepeat === undefined ? false : boolean(action.allowRepeat, "２回目の実行") };
 }
 
 /** 解答欄の候補と選択肢を検証する。 */
@@ -88,6 +88,7 @@ function readAnswerField(value: unknown): AnswerFieldValue {
 /** 回答の共通設定を検証する。 */
 function readAnswerCommon(settings: Record<string, unknown>): AnswerCommonSettings {
   return { instruction: string(settings.instruction, "入力注意事項"), submitLabel: string(settings.submitLabel, "送信ラベル"),
+    successLabel: settings.successLabel === undefined ? "次へ" : string(settings.successLabel, "正解後のラベル"),
     successMessage: settings.successMessage === undefined ? "正解です" : string(settings.successMessage, "正解時メッセージ"),
     errorMessage: string(settings.errorMessage, "不正解メッセージ"), animation: choice(settings.animation, ["shake", "none"], "不正解アニメーション"),
     action: readAction(settings.action), typography: readTypography(settings.typography) };

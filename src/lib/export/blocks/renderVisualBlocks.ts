@@ -30,5 +30,5 @@ export function renderImageHtml(block: ImageBlock): string {
 export function renderButtonHtml(block: ButtonBlock): string {
   const settings = block.settings;
   const style = `${renderTypographyStyle(settings.typography, 18)};background-color:${color(settings.backgroundColor, "#3E0B4D")};color:${color(settings.textColor, "#ffffff")}`;
-  return `<div class="conversation-button-block" ${renderBlockAttributes(block)}><button type="button" class="conversation-action" style="${escapeHtml(style)}" data-conversation-action="${settings.action.type === "link" ? "link" : "next"}" data-url="${escapeHtml(getLinkUrl(settings.action.url))}">${escapeHtml(settings.text)}</button></div>`;
+  return `<div class="conversation-button-block" ${renderBlockAttributes(block)}><button type="button" class="conversation-action" style="${escapeHtml(style)}" data-conversation-action="${settings.action.type === "link" ? "link" : "next"}" data-allow-repeat="${settings.action.allowRepeat === true}" data-url="${escapeHtml(getLinkUrl(settings.action.url))}">${escapeHtml(settings.text)}</button></div>`;
 }

@@ -120,10 +120,10 @@ test("スクロール監視は未解放ブロックを含まず、解放後に�
 });
 
 /** タイマーを進めながら回答フォームの画面状態を検証する。 */
-function answerHarness(multiple = true, individual = true, saved = null, customFields = null) {
+function answerHarness(multiple = true, individual = true, saved = null, customFields = null, overrides = {}) {
   const runtime = harness(saved);
   const fields = customFields ?? (multiple ? ["a", "b"] : ["a"]).map((id) => ({ id, type: "text", candidates: [id] }));
-  const block = new Element({ blockId: "answer", lock: "true", answerConfig: JSON.stringify({ multiple, fields, action: { type: "next" }, individual, animation: "shake", errorMessage: "違います" }) });
+  const block = new Element({ blockId: "answer", lock: "true", answerConfig: JSON.stringify({ multiple, fields, action: { type: "next" }, individual, animation: "shake", errorMessage: "違います", ...overrides }) });
   const feedback = new Element();
   const submit = new Element();
   const inputs = fields.map(() => new Element());
@@ -337,4 +337,38 @@ test("選択式の正解は選択肢IDを復元し、入力値をHTMLとして�
   const restored = answerHarness(false, true, JSON.stringify(form.writes.at(-1).value), fields);
   assert.equal(restored.inputs[0].value, "correct");
   assert.equal(restored.inputs[0].disabled, true);
+});
+
+for (const multiple of [false, true]) test(`再遷移ON：${multiple ? "多答" : "単一"}の正解後は再判定せず遷移し、復元後も回答を固定する`, () => {
+  const options = { action: { type: "link", url: "/next", allowRepeat: true }, successLabel: "続きへ" };
+  const form = answerHarness(multiple, true, null, null, options);
+  form.inputs.forEach((input, index) => { input.value = index ? "b" : "a"; });
+  form.send(); form.tick();
+  assert.equal(form.navigations.length, 1);
+  assert.equal(form.submit.disabled, false);
+  assert.equal(form.submit.textContent, "続きへ");
+  assert.ok(form.inputs.every((input) => input.disabled));
+  form.send();
+  assert.equal(form.navigations.length, 2);
+  assert.equal(form.timers.length, 0);
+  const restored = answerHarness(multiple, true, JSON.stringify(form.writes.at(-1).value), null, options);
+  assert.equal(restored.submit.textContent, "続きへ");
+  assert.equal(restored.inputs[0].value, "a");
+  assert.ok(restored.inputs.every((input) => input.disabled));
+  restored.send();
+  assert.equal(restored.navigations.length, 1);
+});
+
+test("通常ボタンの再遷移ONは実行後も押せるが、次のブロック表示には適用しない", () => {
+  for (const type of ["link", "next"]) {
+    const runtime = harness();
+    const block = new Element({ blockId: "button" });
+    const button = new Element({ conversationAction: type, allowRepeat: "true", url: "/next" });
+    block.selectors["[data-conversation-action]"] = button;
+    const progress = runtime.context.createReaderProgress(new Element({ progressKey: "x" }), [block]);
+    runtime.context.initializeAnswers([block], progress, () => {});
+    button.listeners.click(); button.listeners.click();
+    assert.equal(button.disabled, type !== "link");
+    assert.equal(runtime.navigations.length, type === "link" ? 2 : 0);
+  }
 });

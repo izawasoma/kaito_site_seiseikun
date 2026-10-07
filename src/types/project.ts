@@ -56,6 +56,7 @@ export type AnswerFieldValue = {
 export type AnswerCommonSettings = {
   instruction: string;
   submitLabel: string;
+  successLabel: string;
   errorMessage: string;
   successMessage: string;
   animation: "shake" | "none";

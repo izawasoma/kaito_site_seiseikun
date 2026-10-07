@@ -48,6 +48,16 @@ function initializeAnswers(blocks, progress, onUnlock) {
       const rows = Array.from(block.querySelectorAll("[data-answer-field]"));
       let judging = false;
       const correctFields = new Set();
+      const allowRepeat = config.action.type === "link" && config.action.allowRepeat === true;
+      /** 正解後も入力は固定し、許可されたURL遷移だけを再実行できる状態にする。 */
+      function showCompletedControls() {
+        disableControls(true);
+        if (allowRepeat) {
+          const submit = block.querySelector(".conversation-submit");
+          submit.textContent = config.successLabel || "次へ";
+          submit.disabled = false;
+        }
+      }
       /** 判定中・正解後の入力と二重送信を防ぐ。多答の正解済み欄も固定する。 */
       function disableControls(disabled) {
         block.querySelectorAll("input, select, button").forEach((input) => { input.disabled = disabled; });
@@ -72,11 +82,15 @@ function initializeAnswers(blocks, progress, onUnlock) {
       if (progress.cleared(block)) {
         feedback.textContent = config.successMessage ?? "正解です";
         feedback.dataset.correct = "true";
-        disableControls(true);
+        showCompletedControls();
       }
       block.addEventListener("submit", (event) => {
         event.preventDefault();
-        if (judging || progress.cleared(block) || !accessible(block)) return;
+        if (judging || !accessible(block)) return;
+        if (progress.cleared(block)) {
+          if (allowRepeat) navigateConversation(config.action.url);
+          return;
+        }
         judging = true;
         feedback.textContent = "";
         delete feedback.dataset.correct;
@@ -126,17 +140,18 @@ function initializeAnswers(blocks, progress, onUnlock) {
           feedback.textContent = success ? (config.successMessage ?? "正解です") : config.errorMessage;
           feedback.dataset.correct = String(success);
           disableControls(success);
-          if (success) complete(block, config.action);
+          if (success) { showCompletedControls(); complete(block, config.action); }
           else if (!config.individual && config.animation === "shake") shakeAnswer(submitButton);
         }, config.multiple ? 2000 : 200);
       });
     }
     const button = block.querySelector("[data-conversation-action]");
     if (button) {
-      button.disabled = progress.cleared(block);
+      const allowRepeat = button.dataset.conversationAction === "link" && button.dataset.allowRepeat === "true";
+      button.disabled = progress.cleared(block) && !allowRepeat;
       button.addEventListener("click", () => {
-        if (button.disabled || progress.cleared(block) || !accessible(block)) return;
-        button.disabled = true;
+        if (button.disabled || (progress.cleared(block) && !allowRepeat) || !accessible(block)) return;
+        button.disabled = !allowRepeat;
         complete(block, { type: button.dataset.conversationAction === "link" ? "link" : "next", url: button.dataset.url });
       });
     }

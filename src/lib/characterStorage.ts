@@ -113,3 +113,10 @@ export function deleteCharacter(id: string): SavedCharacter[] {
 
   return remaining;
 }
+
+/** 最新の登録一覧にある画像URLを一括置換する。登録名・IDは統合せず保持する。 */
+export function replaceCharacterImageUrls(before: string, after: string): void {
+  const characters = loadCharacters();
+  if (!characters.some((character) => character.imageUrl === before)) return;
+  writeCharacters(characters.map((character) => character.imageUrl === before ? { ...character, imageUrl: after } : character));
+}

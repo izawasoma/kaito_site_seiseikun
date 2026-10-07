@@ -382,7 +382,7 @@ test("画像幅・カードの見出し本文・ボタン色を出力し、危�
   assert.match(html, /font-size: calc\(30px \* var\(--conversation-scale, 1\)\)/);
   assert.match(html, /font-size: calc\(18px \* var\(--conversation-scale, 1\)\)/);
   assert.ok(!html.includes("javascript:alert"));
-  assert.match(html, /data-conversation-action="link" data-url=""/);
+  assert.match(html, /data-conversation-action="link" data-allow-repeat="false" data-url=""/);
   assert.match(html, /\.guard-style\{display:block\}/);
 });
 
@@ -640,4 +640,70 @@ test("テキストのRPGデザインは個別に保存でき、旧JSONと新規�
   assert.match(html, />メッセージ<\/p>/);
   delete block.settings.textTheme;
   assert.equal(parseProject(project).blocks[0].settings.textTheme, "normal");
+});
+
+
+test("再実行設定と正解後ラベルを保存し、旧データではOFF・次へを補う", () => {
+  const blocks = ["answer", "multiAnswer", "button"].map(createBlock);
+  for (const block of blocks) {
+    assert.equal(block.settings.action.allowRepeat, false);
+    block.settings.action = { type: "link", url: "https://example.com/next", allowRepeat: true };
+    if (block.type !== "button") block.settings.successLabel = "続きへ";
+  }
+  const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks };
+  assert.deepEqual(parseProjectJson(JSON.stringify(project)), project);
+  for (const block of blocks) {
+    delete block.settings.action.allowRepeat;
+    delete block.settings.successLabel;
+  }
+  for (const block of parseProject(project).blocks) {
+    assert.equal(block.settings.action.allowRepeat, false);
+    if (block.type !== "button") assert.equal(block.settings.successLabel, "次へ");
+  }
+});
+
+test("画像一括変更は画像と吹き出しだけを置換し、本文・リンク・元データを保持する", async () => {
+  const { collectImageUrls, replaceProjectImageUrls } = await import("../src/lib/project/replaceImageUrls.ts");
+  const before = "https://example.com/old.png", after = "https://example.com/new.png";
+  const image = createBlock("image"); image.settings.url = before;
+  const speech = createBlock("speech"); speech.settings.imageUrl = before;
+  const button = createBlock("button"); button.settings.action.url = before;
+  const text = createTextBlock(); text.settings.text = before;
+  const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks: [image, speech, button, text] };
+  const characters = [{ id: "c", registrationName: "登録", characterName: "名前", imageUrl: before }, { id: "d", registrationName: "別", characterName: "名前", imageUrl: after }];
+  assert.deepEqual(collectImageUrls(project, characters), [before, after]);
+  const updated = replaceProjectImageUrls(project, before, after);
+  assert.equal(updated.blocks[0].settings.url, after);
+  assert.equal(updated.blocks[1].settings.imageUrl, after);
+  assert.equal(updated.blocks[2], button);
+  assert.equal(updated.blocks[3], text);
+  assert.equal(image.settings.url, before);
+  assert.deepEqual(updated.blocks.map((block) => block.id), project.blocks.map((block) => block.id));
+});
+
+test("登録画像の一括変更は最新データのIDと名前を保ち、保存失敗を通知する", async () => {
+  const { replaceCharacterImageUrls } = await import("../src/lib/characterStorage.ts");
+  const originalStorage = globalThis.localStorage;
+  let raw = JSON.stringify([{ id: "c", registrationName: "登録", characterName: "名前", imageUrl: "old" }]);
+  try {
+    globalThis.localStorage = { getItem: () => raw, setItem: (_key, value) => { raw = value; } };
+    replaceCharacterImageUrls("old", "new");
+    assert.deepEqual(JSON.parse(raw), [{ id: "c", registrationName: "登録", characterName: "名前", imageUrl: "new" }]);
+    globalThis.localStorage.setItem = () => { throw new Error("quota"); };
+    assert.throws(() => replaceCharacterImageUrls("new", "next"), /保存できません/);
+    assert.equal(JSON.parse(raw)[0].imageUrl, "new");
+  } finally { globalThis.localStorage = originalStorage; }
+});
+
+test("画像候補は編集データのみ・登録キャラクターのみのURLも含め、重複と空欄を除く", async () => {
+  const { collectImageUrls } = await import("../src/lib/project/replaceImageUrls.ts");
+  const image = createBlock("image"); image.settings.url = "https://example.com/page.png";
+  const speech = createBlock("speech"); speech.settings.imageUrl = "https://example.com/shared.png";
+  const duplicate = createBlock("image"); duplicate.settings.url = speech.settings.imageUrl;
+  const empty = createBlock("image");
+  const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks: [image, speech, duplicate, empty] };
+  const characters = [speech.settings.imageUrl, "https://example.com/stored.png", "https://example.com/stored.png", ""].map((imageUrl, index) => ({ id: String(index), registrationName: "登録", characterName: "名前", imageUrl }));
+  assert.deepEqual(collectImageUrls(project, characters), [image.settings.url, speech.settings.imageUrl, "https://example.com/stored.png"]);
+  assert.deepEqual(collectImageUrls({ ...project, blocks: [] }, characters), [speech.settings.imageUrl, "https://example.com/stored.png"]);
+  assert.deepEqual(collectImageUrls(project, []), [image.settings.url, speech.settings.imageUrl]);
 });

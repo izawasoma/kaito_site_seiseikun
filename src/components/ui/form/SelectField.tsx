@@ -152,7 +152,8 @@ const SelectedText = styled.span`
 `;
 
 const Content = styled(Select.Content)`
-  z-index: 100;
+  /* Portalでbody直下に表示されるため、モーダル本体（201）より手前に配置する。 */
+  z-index: 202;
   width: var(--radix-select-trigger-width);
   max-height: min(280px, var(--radix-select-content-available-height));
   overflow: hidden;

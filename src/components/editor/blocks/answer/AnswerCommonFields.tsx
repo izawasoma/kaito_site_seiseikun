@@ -17,6 +17,7 @@ export default function AnswerCommonFields({ value, onChange }: {
     <TextField label="不正解時メッセージ" required value={value.errorMessage} onChange={(event) => onChange({ ...value, errorMessage: event.target.value })} />
     <RadioGroup label="不正解時アニメーション" value={value.animation} options={[{ value: "shake", label: "横揺れ" }, { value: "none", label: "なし" }]} onValueChange={(animation) => { if (animation === "shake" || animation === "none") onChange({ ...value, animation }); }} />
     <ActionFields value={value.action} onChange={(action) => onChange({ ...value, action })} urlError={value.action.type === "link" && !getLinkUrl(value.action.url) ? "有効な遷移先URLを入力してください" : undefined} />
+    {value.action.type === "link" && value.action.allowRepeat && <TextField label="正解後のラベル" required value={value.successLabel} onChange={(event) => onChange({ ...value, successLabel: event.target.value })} />}
     <TypographyFields value={value.typography} onChange={(typography) => onChange({ ...value, typography })} />
   </>;
 }

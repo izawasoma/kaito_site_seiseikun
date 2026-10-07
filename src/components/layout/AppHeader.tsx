@@ -1,3 +1,4 @@
+import ImageBulkChangeDialog from "@/components/editor/images/ImageBulkChangeDialog";
 import styled from "styled-components";
 import CodeExportDialog from "@/components/export/CodeExportDialog";
 import type { ProjectData } from "@/types/project";
@@ -6,11 +7,12 @@ import AlertBanner from "@/components/ui/feedback/AlertBanner";
 
 type AppHeaderProps = {
   project: ProjectData;
+  onReplaceImageUrls: (before: string, after: string) => void;
   onImport: (project: ProjectData) => void;
 };
 
 /** 編集中のプロジェクトを、ヘッダーの書き出しダイアログへ渡す。 */
-export default function AppHeader({ project, onImport }: AppHeaderProps) {
+export default function AppHeader({ project, onImport, onReplaceImageUrls }: AppHeaderProps) {
   const { inputRef, notice, downloadProject, readProjectFile, openFilePicker, clearNotice } =
     useProjectFiles(project, onImport);
   return (
@@ -30,6 +32,9 @@ export default function AppHeader({ project, onImport }: AppHeaderProps) {
       )}
       <AppTitle>回答サイト生成君</AppTitle>
       <HeaderActions>
+        <ImageBulkChangeDialog project={project} onReplace={onReplaceImageUrls} trigger={
+          <HeaderButton type="button"><span className="material-icons" aria-hidden="true">image</span>画像の一括変更</HeaderButton>
+        } />
         <HeaderButton type="button" onClick={downloadProject}>
           <span className="material-icons" aria-hidden="true">
             file_download

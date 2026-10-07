@@ -1,3 +1,6 @@
+import { replaceCharacterImageUrls } from "@/lib/characterStorage";
+import { replaceProjectImageUrls } from "@/lib/project/replaceImageUrls";
+import { getImageUrl } from "@/lib/getImageUrl";
 import { useEffect, useState } from "react";
 import type { ProjectData, ProjectBlock, PageSettingsValue } from "@/types/project";
 import { loadEditorSession, saveEditorSnapshot } from "@/lib/project/projectStorage";
@@ -318,7 +321,19 @@ export default function useProjectEditor() {
     setStorageError("");
   }
 
+  /** 登録画像の保存に成功してから編集データを更新し、選択中のブロックを維持する。 */
+  function replaceImageUrls(before: string, after: string) {
+    if (!before.trim() || !getImageUrl(after)) throw new Error("有効な画像URLを入力してください。");
+    const nextUrl = after.trim();
+    replaceCharacterImageUrls(before, nextUrl);
+    setEditorState((currentEditorState) => ({
+      ...currentEditorState,
+      project: replaceProjectImageUrls(currentEditorState.project, before, nextUrl),
+    }));
+  }
+
   return {
+    replaceImageUrls,
     project: editorState.project,
     storageError,
     replaceProject,

@@ -19,7 +19,7 @@ function ProjectWorkspace() {
   const editor = useProjectEditor();
   return (
     <AppContainer>
-      <AppHeader project={editor.project} onImport={editor.replaceProject} />
+      <AppHeader project={editor.project} onImport={editor.replaceProject} onReplaceImageUrls={editor.replaceImageUrls} />
       {editor.storageError && <StorageError role="alert">{editor.storageError}</StorageError>}
       <EditorLayout editor={editor} />
     </AppContainer>

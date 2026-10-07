@@ -1,3 +1,4 @@
+import Switch from "@/components/ui/form/Switch";
 import styled from "styled-components";
 import SelectField from "@/components/ui/form/SelectField";
 import TextField from "@/components/ui/form/TextField";
@@ -5,6 +6,7 @@ import TextField from "@/components/ui/form/TextField";
 export type ActionValue = {
   type: "next" | "link";
   url: string;
+  allowRepeat?: boolean;
 };
 
 type ActionFieldsProps = {
@@ -39,7 +41,7 @@ export default function ActionFields({
         disabled={disabled}
       />
 
-      {value.type === "link" && (
+      {value.type === "link" && (<>
         <TextField
           label="遷移先URL"
           type="url"
@@ -49,7 +51,9 @@ export default function ActionFields({
           error={urlError}
           disabled={disabled}
         />
-      )}
+        <Switch label="２回目の実行を許可する" checked={value.allowRepeat === true} disabled={disabled}
+          onChange={(event) => onChange({ ...value, allowRepeat: event.target.checked })} />
+      </>)}
     </Fields>
   );
 }
