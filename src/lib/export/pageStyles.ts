@@ -54,6 +54,15 @@ html[data-conversation-preview-device="sp"] .conversation-page {
 
 .conversation-page .conversation-code { margin: 0 0 calc(18px * var(--conversation-scale, 1)); }
 
+/* ルビを均等に広げず、親文字の中央にまとめて配置する（中付き）。 */
+.conversation-page ruby {
+  ruby-align: center;
+}
+
+.conversation-page rt {
+  text-align: center;
+}
+
 .conversation-page [hidden] {
   display: none !important;
 }
