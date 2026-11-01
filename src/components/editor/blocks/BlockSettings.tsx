@@ -1,3 +1,5 @@
+import CustomIdFields from "@/components/editor/fields/CustomIdFields";
+import { supportsCustomId } from "@/lib/export/elementIds";
 import CodeSettingsLoading from "./code/CodeSettingsLoading";
 import { lazy, Suspense } from "react";
 import { validateBlock } from "@/lib/project/validateProject";
@@ -94,6 +96,10 @@ function BlockSettingsForm({
 export default function BlockSettings(props: BlockSettingsProps) {
   const errors = validateBlock(props.block);
   return <><BlockSettingsForm {...props} />
+    {supportsCustomId(props.block) && <CustomIdFields block={props.block} onChange={(settings) => {
+      const block = props.block;
+      if (supportsCustomId(block)) props.onChange({ ...block, settings: { ...block.settings, ...settings } } as ProjectBlock);
+    }} />}
     {props.showSimultaneous && <FormSection title="表示タイミング">
       <Checkbox label="前の出現と同時に表示" checked={props.block.simultaneous} onChange={(event) => props.onChange({ ...props.block, simultaneous: event.target.checked, afterPreviousTyping: event.target.checked ? false : props.block.afterPreviousTyping })} />
       {props.rpgTypewriterEnabled && <Checkbox label="前の文字送りが終了とともに表示" checked={props.block.afterPreviousTyping ?? false} onChange={(event) => props.onChange({ ...props.block, afterPreviousTyping: event.target.checked, simultaneous: event.target.checked ? false : props.block.simultaneous })} />}

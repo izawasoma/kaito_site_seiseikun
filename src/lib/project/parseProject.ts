@@ -42,6 +42,13 @@ function readTypography(value: unknown): TypographyValue {
   };
 }
 
+/** 判定待ち時間の数値を読み取る。旧データには既定値を補う。 */
+function readDelay(value: unknown, fallback: number): number {
+  if (value === undefined) return fallback;
+  if (typeof value !== "number" || !Number.isFinite(value)) return invalid("判定待ち時間");
+  return value;
+}
+
 /** ページ設定がなかった旧データには初期設定を補う。 */
 function readPageSettings(value: unknown): PageSettingsValue {
   if (value === undefined) return createPageSettings();
@@ -85,9 +92,15 @@ function readAnswerField(value: unknown): AnswerFieldValue {
     candidates: field.candidates.map((candidate) => string(candidate, "正解候補")), choices };
 }
 
+/** 旧データでは独自IDを無効として復元する。 */
+function readCustomId(settings: Record<string, unknown>) {
+  return { customIdEnabled: settings.customIdEnabled === undefined ? false : boolean(settings.customIdEnabled, "独自IDの利用"),
+    customId: settings.customId === undefined ? "" : string(settings.customId, "独自ID") };
+}
+
 /** 回答の共通設定を検証する。 */
-function readAnswerCommon(settings: Record<string, unknown>): AnswerCommonSettings {
-  return { instruction: string(settings.instruction, "入力注意事項"), submitLabel: string(settings.submitLabel, "送信ラベル"),
+function readAnswerCommon(settings: Record<string, unknown>, fallback: number): AnswerCommonSettings {
+  return { judgmentDelayMs: readDelay(settings.judgmentDelayMs, fallback), ...readCustomId(settings), instruction: string(settings.instruction, "入力注意事項"), submitLabel: string(settings.submitLabel, "送信ラベル"),
     successLabel: settings.successLabel === undefined ? "次へ" : string(settings.successLabel, "正解後のラベル"),
     successMessage: settings.successMessage === undefined ? "正解です" : string(settings.successMessage, "正解時メッセージ"),
     errorMessage: string(settings.errorMessage, "不正解メッセージ"), animation: choice(settings.animation, ["shake", "none"], "不正解アニメーション"),
@@ -107,7 +120,7 @@ function readBlock(value: unknown): ProjectBlock {
     return { id, type: "image", simultaneous, afterPreviousTyping, settings: { url: string(settings.url, "画像URL"), alt: string(settings.alt, "ALT"), width: settings.width as 500 | 650 | 860 } };
   }
   if (block.type === "button") return { id, type: "button", simultaneous, afterPreviousTyping, settings: {
-    text: string(settings.text, "ボタンラベル"), action: readAction(settings.action), typography: readTypography(settings.typography),
+    ...readCustomId(settings), text: string(settings.text, "ボタンラベル"), action: readAction(settings.action), typography: readTypography(settings.typography),
     backgroundColor: string(settings.backgroundColor, "背景色"), textColor: string(settings.textColor, "文字色"),
   } };
   if (block.type === "icon") return { id, type: "icon", simultaneous, afterPreviousTyping, settings: {
@@ -116,13 +129,13 @@ function readBlock(value: unknown): ProjectBlock {
     titleTypography: readTypography(settings.titleTypography), typography: readTypography(settings.typography),
   } };
   if (block.type === "answer") return { id, type: "answer", simultaneous, afterPreviousTyping, settings: {
-    ...readAnswerCommon(settings), answer: readAnswerField(settings.answer),
+    ...readAnswerCommon(settings, 200), answer: readAnswerField(settings.answer),
   } };
   if (block.type === "multiAnswer") {
     if (!Array.isArray(settings.answers)) invalid("解答欄一覧");
     const answers = settings.answers.map(readAnswerField);
     if (new Set(answers.map((field) => field.id)).size !== answers.length) invalid("解答欄IDの重複");
-    return { id, type: "multiAnswer", simultaneous, afterPreviousTyping, settings: { ...readAnswerCommon(settings), answers,
+    return { id, type: "multiAnswer", simultaneous, afterPreviousTyping, settings: { ...readAnswerCommon(settings, 2000), answers,
       showIndividualResults: boolean(settings.showIndividualResults, "個別判定") } };
   }
   if (block.type === "code") return { id, type: "code", simultaneous, afterPreviousTyping, settings: { html: string(settings.html, "HTML"), css: string(settings.css, "CSS"), javascript: string(settings.javascript, "JavaScript") } };
@@ -155,7 +168,18 @@ export function parseProject(value: unknown): ProjectData {
   const project = record(value, "プロジェクト");
   if (project.schemaVersion !== 1) throw new Error("このJSONのデータバージョンには対応していません。");
   if (!Array.isArray(project.blocks)) return invalid("ブロック一覧");
-  const blocks = project.blocks.map(readBlock);
+  const legacySettings = project.pageSettings === undefined ? {} : record(project.pageSettings, "ページ設定");
+  const blocks = project.blocks.map((value) => {
+    const block = readBlock(value);
+    if (block.type === "answer" || block.type === "multiAnswer") {
+      const rawSettings = record(record(value, "ブロック").settings, "ブロック設定");
+      const legacyDelay = legacySettings[block.type === "answer" ? "answerDelay" : "multiAnswerDelay"];
+      if (rawSettings.judgmentDelayMs === undefined && legacyDelay !== undefined) {
+        block.settings.judgmentDelayMs = readDelay(legacyDelay, 0) * 1000;
+      }
+    }
+    return block;
+  });
   if (new Set(blocks.map((block) => block.id)).size !== blocks.length) {
     throw new Error("JSON内に重複したブロックIDがあります。");
   }

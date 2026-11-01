@@ -120,7 +120,7 @@ test("スクロール監視は未解放ブロックを含まず、解放後に�
 });
 
 /** タイマーを進めながら回答フォームの画面状態を検証する。 */
-function answerHarness(multiple = true, individual = true, saved = null, customFields = null, overrides = {}) {
+function answerHarness(multiple = true, individual = true, saved = null, customFields = null, overrides = {}, delays = {}) {
   const runtime = harness(saved);
   const fields = customFields ?? (multiple ? ["a", "b"] : ["a"]).map((id) => ({ id, type: "text", candidates: [id] }));
   const block = new Element({ blockId: "answer", lock: "true", answerConfig: JSON.stringify({ multiple, fields, action: { type: "next" }, individual, animation: "shake", errorMessage: "違います", ...overrides }) });
@@ -141,7 +141,7 @@ function answerHarness(multiple = true, individual = true, saved = null, customF
   block.selectors["input, select, button"] = [...inputs, submit];
   const progress = runtime.context.createReaderProgress(new Element({ progressKey: "x" }), [block]);
   const unlocks = [];
-  runtime.context.initializeAnswers([block], progress, () => unlocks.push(true));
+  runtime.context.initializeAnswers([block], progress, () => unlocks.push(true), delays);
   return { ...runtime, block, feedback, submit, inputs, results, rows, progress, unlocks, send() { block.listeners.submit({ preventDefault() {} }); } };
 }
 
@@ -384,4 +384,26 @@ test("判定メッセージと正解後ラベルの装飾は再試行・復元�
   const restored = answerHarness(false, true, JSON.stringify(form.writes.at(-1).value), null, options);
   assert.equal(restored.feedback.innerHTML, options.successHtml);
   assert.equal(restored.submit.innerHTML, options.successLabelHtml);
+});
+
+test("判定待ち時間は単一・多答ごとに設定でき、0秒と不正値の既定値にも対応する", () => {
+  for (const [multiple, delays, expected] of [
+    [false, { single: 1.5, multiple: 3 }, 1500],
+    [true, { single: 1.5, multiple: 3 }, 3000],
+    [true, { multiple: 0 }, 0],
+    [false, { single: -1 }, 200],
+    [true, { multiple: 61 }, 2000],
+  ]) {
+    const form = answerHarness(multiple, true, null, null, {}, delays);
+    form.send();
+    assert.equal(form.timers[0].delay, expected);
+  }
+});
+
+test("回答ブロックのms設定を優先して判定結果を表示する", () => {
+  for (const delay of [0, 750, 2000]) {
+    const form = answerHarness(true, true, null, null, { judgmentDelayMs: delay }, { multiple: 5 });
+    form.send();
+    assert.equal(form.timers[0].delay, delay);
+  }
 });

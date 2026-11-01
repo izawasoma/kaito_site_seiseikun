@@ -31,7 +31,7 @@ function shakeAnswer(element) {
 }
 
 /** 回答とボタンを進行制御へ接続する。非表示・未解放ブロックからの操作は拒否する。 */
-function initializeAnswers(blocks, progress, onUnlock) {
+function initializeAnswers(blocks, progress, onUnlock, delays = {}) {
   function accessible(block) {
     return !block.hidden && blocks.indexOf(block) <= getUnlockedLimit(blocks, progress);
   }
@@ -46,6 +46,11 @@ function initializeAnswers(blocks, progress, onUnlock) {
       try { config = JSON.parse(block.dataset.answerConfig); } catch { return; }
       const feedback = block.querySelector(".conversation-answer-feedback");
       const rows = Array.from(block.querySelectorAll("[data-answer-field]"));
+      const seconds = config.multiple ? delays.multiple : delays.single;
+      const legacyDelay = Number.isFinite(seconds) && seconds >= 0 && seconds <= 60
+        ? seconds * 1000 : (config.multiple ? 2000 : 200);
+      const delay = Number.isInteger(config.judgmentDelayMs) && config.judgmentDelayMs >= 0 && config.judgmentDelayMs <= 60000
+        ? config.judgmentDelayMs : legacyDelay;
       let judging = false;
       const correctFields = new Set();
       const allowRepeat = config.action.type === "link" && config.action.allowRepeat === true;
@@ -120,7 +125,7 @@ function initializeAnswers(blocks, progress, onUnlock) {
         submitButton.classList.remove("conversation-shake");
         if (config.multiple && !config.individual) feedback.innerHTML = spinner;
         disableControls(true);
-        /** メッセージを一度消して描画する。多答は2秒後に結果と不正解演出を表示する。 */
+        /** メッセージを一度消して描画する。設定した待ち時間の後に結果と不正解演出を表示する。 */
         setTimeout(() => {
           if (block.isConnected === false) return;
           judging = false;
@@ -146,7 +151,7 @@ function initializeAnswers(blocks, progress, onUnlock) {
           disableControls(success);
           if (success) { showCompletedControls(); complete(block, config.action); }
           else if (!config.individual && config.animation === "shake") shakeAnswer(submitButton);
-        }, config.multiple ? 2000 : 200);
+        }, delay);
       });
     }
     const button = block.querySelector("[data-conversation-action]");

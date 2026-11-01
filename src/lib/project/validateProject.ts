@@ -1,3 +1,4 @@
+import { allElementIds, customIdError, supportsCustomId } from "@/lib/export/elementIds";
 import { usesReaderProgress } from "./pageHelp";
 import type { AnswerFieldValue, ProjectBlock, ProjectData } from "@/types/project";
 import { parseDecoratedText } from "@/lib/export/renderDecoratedText";
@@ -9,6 +10,10 @@ import { getLinkUrl } from "@/lib/getLinkUrl";
 export function validateBlock(block: ProjectBlock): string[] {
   const errors: string[] = [];
   const settings = block.settings;
+  if (supportsCustomId(block)) {
+    const error = customIdError(block);
+    if (error) errors.push(error);
+  }
   function required(value: string, label: string) {
     if (!value.trim()) errors.push(`${label}を入力してください。`);
   }
@@ -60,6 +65,8 @@ export function validateBlock(block: ProjectBlock): string[] {
       break;
     }
     case "answer": case "multiAnswer": {
+      const delay = block.settings.judgmentDelayMs;
+      if (delay !== undefined && (!Number.isInteger(delay) || delay < 0 || delay > 60000)) errors.push("判定待ち時間は0〜60000msの整数で入力してください。");
       required(block.settings.submitLabel, "送信ボタンラベル");
       required(block.settings.errorMessage, "不正解時メッセージ");
       decorated(block.settings.instruction, "入力注意事項");
@@ -90,6 +97,14 @@ export function validateProject(project: ProjectData): string[] {
   if (needsProgress && !project.pageSettings.progressStorageKey.trim()) errors.push("ページ設定：進行保存用キー名を入力してください。他の記事と重複しない名前を使用します。");
   if (!/^#[0-9a-f]{6}$/i.test(project.pageSettings.defaultTextColor)) errors.push("ページ設定：文字色を6桁のカラーコードで入力してください。");
   if (project.pageSettings.displayMode === "rpg" && (!Number.isFinite(project.pageSettings.typewriterInterval) || project.pageSettings.typewriterInterval < 1)) errors.push("ページ設定：文字送り速度は1以上にしてください。");
+  const seenIds = new Set<string>();
+  project.blocks.forEach((block, index) => {
+    if (!supportsCustomId(block)) return;
+    for (const id of allElementIds(block)) {
+      if (seenIds.has(id)) errors.push(`ブロック${index + 1}：出力ID「${id}」が重複しています。`);
+      seenIds.add(id);
+    }
+  });
   project.blocks.forEach((block, index) => errors.push(...validateBlock(block).map((error) => `ブロック${index + 1}：${error}`)));
   return errors;
 }

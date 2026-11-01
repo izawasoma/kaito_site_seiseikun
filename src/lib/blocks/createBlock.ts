@@ -16,8 +16,8 @@ export function createAnswerField(): AnswerFieldValue {
 }
 
 /** 回答ブロック共通の初期値。 */
-function answerDefaults(): AnswerCommonSettings {
-  return { instruction: "", submitLabel: "送信", successLabel: "次へ", successMessage: "正解です", errorMessage: "答えが違います。もう一度入力してください。",
+function answerDefaults(judgmentDelayMs: number): AnswerCommonSettings {
+  return { judgmentDelayMs, customIdEnabled: false, customId: "", instruction: "", submitLabel: "送信", successLabel: "次へ", successMessage: "正解です", errorMessage: "答えが違います。もう一度入力してください。",
     animation: "shake", action: { type: "next", url: "", allowRepeat: false }, typography: typography() };
 }
 
@@ -33,9 +33,9 @@ export function createBlock(type: ProjectBlock["type"]): ProjectBlock {
     case "icon": return { ...base, type, settings: { title: "", text: "", icon: "check",
       backgroundColor: theme.colors.red, textColor: theme.colors.white, rounded: true,
       titleTypography: typography("24"), typography: typography() } };
-    case "button": return { ...base, type, settings: { text: "次へ", action: { type: "next", url: "", allowRepeat: false },
+    case "button": return { ...base, type, settings: { customIdEnabled: false, customId: "", text: "次へ", action: { type: "next", url: "", allowRepeat: false },
       backgroundColor: theme.colors.purple, textColor: theme.colors.white, typography: typography("18") } };
-    case "answer": return { ...base, type, settings: { ...answerDefaults(), answer: createAnswerField() } };
-    case "multiAnswer": return { ...base, type, settings: { ...answerDefaults(), answers: [createAnswerField()], showIndividualResults: true } };
+    case "answer": return { ...base, type, settings: { ...answerDefaults(200), answer: createAnswerField() } };
+    case "multiAnswer": return { ...base, type, settings: { ...answerDefaults(2000), answers: [createAnswerField()], showIndividualResults: true } };
   }
 }

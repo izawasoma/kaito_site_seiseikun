@@ -1,3 +1,4 @@
+import { elementIds } from "../elementIds";
 import { decoratedPlainText } from "../countDecoratedCharacters";
 import type { AnswerBlock, MultiAnswerBlock, AnswerFieldValue } from "@/types/project";
 import { escapeHtml } from "../escapeHtml";
@@ -7,8 +8,8 @@ import { renderDecoratedText } from "../renderDecoratedText";
 import { getLinkUrl } from "@/lib/getLinkUrl";
 
 /** 各入力のIDはブロックIDを含め、複製後もラベルの参照先を重複させない。 */
-function renderField(blockId: string, field: AnswerFieldValue, index: number, individual: boolean): string {
-  const id = escapeHtml(`${blockId}-${field.id}`);
+function renderField(ids: string[], field: AnswerFieldValue, index: number, individual: boolean): string {
+  const id = escapeHtml(ids[0] ?? "");
   const label = escapeHtml(decoratedPlainText(field.label) || `回答${index + 1}`);
   let input: string;
   if (field.type === "text") {
@@ -16,7 +17,7 @@ function renderField(blockId: string, field: AnswerFieldValue, index: number, in
   } else if (field.type === "single") {
     input = `<select id="${id}" aria-label="${label}"><option value="">選択してください</option>${field.choices.map((choice) => `<option value="${escapeHtml(choice.id)}">${escapeHtml(choice.label)}</option>`).join("")}</select>`;
   } else {
-    input = `<div class="conversation-choices" role="group" aria-label="${label}">${field.choices.map((choice) => `<label><input type="checkbox" value="${escapeHtml(choice.id)}"><span>${renderDecoratedText(choice.label)}</span></label>`).join("")}</div>`;
+    input = `<div class="conversation-choices" role="group" aria-label="${label}">${field.choices.map((choice, choiceIndex) => `<label><input id="${escapeHtml(ids[choiceIndex])}" type="checkbox" value="${escapeHtml(choice.id)}"><span>${renderDecoratedText(choice.label)}</span></label>`).join("")}</div>`;
   }
   const before = field.type !== "multiple" && field.beforeText ? `<div class="conversation-answer-before">${renderDecoratedText(field.beforeText)}</div>` : "";
   const after = field.type !== "multiple" && field.afterText ? `<div class="conversation-answer-after">${renderDecoratedText(field.afterText)}</div>` : "";
@@ -26,8 +27,9 @@ function renderField(blockId: string, field: AnswerFieldValue, index: number, in
 /** 正解候補は属性のJSONとしてエスケープし、実行可能なコードとして埋め込まない。 */
 export function renderAnswerHtml(block: AnswerBlock | MultiAnswerBlock): string {
   const settings = block.settings;
+  const ids = elementIds(block);
   const fields = block.type === "answer" ? [block.settings.answer] : block.settings.answers;
   const individual = block.type === "multiAnswer" && block.settings.showIndividualResults;
-  const config = { errorHtml: renderDecoratedText(settings.errorMessage), successHtml: renderDecoratedText(settings.successMessage), successLabelHtml: renderDecoratedText(settings.successLabel.trim() || "次へ"), multiple: block.type === "multiAnswer", fields, action: { ...settings.action, url: getLinkUrl(settings.action.url) }, errorMessage: settings.errorMessage, successMessage: settings.successMessage, successLabel: settings.successLabel.trim() || "次へ", animation: settings.animation, individual };
-  return `<form class="conversation-answer" ${renderBlockAttributes(block)} data-answer-config="${escapeHtml(JSON.stringify(config))}" style="${escapeHtml(renderTypographyStyle(settings.typography, 16))}" novalidate>${settings.instruction ? `<div class="conversation-answer-instruction"><span class="conversation-material-icon" aria-hidden="true">edit</span> ${renderDecoratedText(settings.instruction)}</div>` : ""}<div class="conversation-answer-fields">${fields.map((field, index) => renderField(block.id, field, index, individual)).join("")}</div><button class="conversation-submit" type="submit">${renderDecoratedText(settings.submitLabel)}</button><div class="conversation-answer-feedback" role="status" aria-live="polite"></div></form>`;
+  const config = { judgmentDelayMs: settings.judgmentDelayMs ?? (block.type === "multiAnswer" ? 2000 : 200), errorHtml: renderDecoratedText(settings.errorMessage), successHtml: renderDecoratedText(settings.successMessage), successLabelHtml: renderDecoratedText(settings.successLabel.trim() || "次へ"), multiple: block.type === "multiAnswer", fields, action: { ...settings.action, url: getLinkUrl(settings.action.url) }, errorMessage: settings.errorMessage, successMessage: settings.successMessage, successLabel: settings.successLabel.trim() || "次へ", animation: settings.animation, individual };
+  return `<form id="${escapeHtml(ids.root)}" class="conversation-answer" ${renderBlockAttributes(block)} data-answer-config="${escapeHtml(JSON.stringify(config))}" style="${escapeHtml(renderTypographyStyle(settings.typography, 16))}" novalidate>${settings.instruction ? `<div class="conversation-answer-instruction"><span class="conversation-material-icon" aria-hidden="true">edit</span> ${renderDecoratedText(settings.instruction)}</div>` : ""}<div class="conversation-answer-fields">${fields.map((field, index) => renderField(ids.fields[index], field, index, individual)).join("")}</div><button id="${escapeHtml(ids.submit)}" class="conversation-submit" type="submit">${renderDecoratedText(settings.submitLabel)}</button><div class="conversation-answer-feedback" role="status" aria-live="polite"></div></form>`;
 }

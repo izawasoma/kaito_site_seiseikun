@@ -59,7 +59,10 @@ export type AnswerFieldValue = {
 };
 
 /** 回答ブロック共通の送信・判定後アクションと文字設定。 */
-export type AnswerCommonSettings = {
+export type CustomIdSettings = { customIdEnabled?: boolean; customId?: string };
+
+export type AnswerCommonSettings = CustomIdSettings & {
+  judgmentDelayMs?: number;
   instruction: string;
   submitLabel: string;
   successLabel: string;
@@ -107,6 +110,7 @@ export type ButtonBlock = {
   /** RPGモードで直前の文字送り終了後に自動表示する。 */
   afterPreviousTyping: boolean;
   settings: {
+    customIdEnabled?: boolean; customId?: string;
     text: string; action: ActionValue; backgroundColor: string; textColor: string;
     typography: TypographyValue;
   };

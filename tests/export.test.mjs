@@ -790,3 +790,63 @@ test("回答ラベル・前後文章・各ボタン・キャラクター名に�
   const speech = createBlock('speech'); speech.settings.characterName = ruby;
   assert.match(renderSpeechHtml(speech), /conversation-speech-name"><ruby>/);
 });
+
+test("独自IDを種類別に採番し、無効化しても内部IDと保存値を保持する", async () => {
+  const { createBlock, createAnswerField } = await import("../src/lib/blocks/createBlock.ts");
+  const { elementIds } = await import("../src/lib/export/elementIds.ts");
+  const { validateProject } = await import("../src/lib/project/validateProject.ts");
+  const block = createBlock("multiAnswer");
+  const originalId = block.id;
+  const select = { ...createAnswerField(), type: "single" };
+  const multiple = { ...createAnswerField(), type: "multiple", choices: [
+    { id: "a", label: "A", correct: true }, { id: "b", label: "B", correct: false },
+  ] };
+  block.settings.answers.push(select, createAnswerField(), multiple);
+  block.settings.customId = "custom-id";
+  block.settings.customIdEnabled = true;
+  const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks: [block] };
+  const ids = elementIds(block);
+  assert.deepEqual(ids.fields, [["custom-id-for-input1"], ["custom-id-for-select1"], ["custom-id-for-input2"], ["custom-id-for-checkbox1", "custom-id-for-checkbox2"]]);
+  const html = generateProjectCode(project).htmlCss;
+  for (const id of [ids.root, ids.submit, ...ids.fields.flat()]) assert.ok(html.includes(`id="${id}"`));
+  assert.ok(html.includes(`data-block-id="${originalId}"`));
+  assert.equal(parseProject(project).blocks[0].settings.customId, "custom-id");
+  const button = createBlock("button");
+  Object.assign(button.settings, { customIdEnabled: true, customId: "custom-id-for-submit" });
+  project.blocks.push(button);
+  assert.ok(validateProject(project).some((error) => error.includes("重複")));
+  block.settings.customIdEnabled = false;
+  assert.equal(elementIds(block).root, originalId);
+  assert.equal(elementIds(block).fields[0][0], `${originalId}-${block.settings.answers[0].id}`);
+  assert.equal(parseProject(project).blocks[0].settings.customId, "custom-id");
+  delete block.settings.customId;
+  delete block.settings.customIdEnabled;
+  assert.equal(parseProject(project).blocks[0].settings.customIdEnabled, false);
+  Object.assign(button.settings, { customIdEnabled: true, customId: 'bad" id' });
+  assert.ok(validateProject(project).some((error) => error.includes("英字")));
+  assert.equal(elementIds(button).root, button.id);
+});
+
+test("回答ごとの判定待ち時間をmsで保存し、旧ページ設定の秒数を移行する", async () => {
+  const { createBlock } = await import("../src/lib/blocks/createBlock.ts");
+  const { validateProject } = await import("../src/lib/project/validateProject.ts");
+  const block = createBlock("answer");
+  const multi = createBlock("multiAnswer");
+  const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks: [block, multi] };
+  block.settings.judgmentDelayMs = 1500;
+  multi.settings.judgmentDelayMs = 0;
+  assert.equal(parseProject(project).blocks[0].settings.judgmentDelayMs, 1500);
+  assert.match(generateProjectCode(project).htmlCss, /judgmentDelayMs&quot;:1500/);
+  assert.match(generateProjectCode(project).htmlCss, /judgmentDelayMs&quot;:0/);
+  block.settings.judgmentDelayMs = -1;
+  assert.ok(validateProject(project).some((error) => error.includes("判定待ち時間")));
+  delete block.settings.judgmentDelayMs;
+  delete multi.settings.judgmentDelayMs;
+  assert.equal(parseProject(project).blocks[0].settings.judgmentDelayMs, 200);
+  assert.equal(parseProject(project).blocks[1].settings.judgmentDelayMs, 2000);
+  Object.assign(project.pageSettings, { answerDelay: 0, multiAnswerDelay: 3.5 });
+  assert.equal(parseProject(project).blocks[0].settings.judgmentDelayMs, 0);
+  assert.equal(parseProject(project).blocks[1].settings.judgmentDelayMs, 3500);
+  block.settings.judgmentDelayMs = 750;
+  assert.equal(parseProject(project).blocks[0].settings.judgmentDelayMs, 750);
+});

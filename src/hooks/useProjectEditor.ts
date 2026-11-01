@@ -286,6 +286,10 @@ export default function useProjectEditor() {
       id: crypto.randomUUID(),
     };
 
+    if (duplicatedBlock.type === "button" || duplicatedBlock.type === "answer" || duplicatedBlock.type === "multiAnswer") {
+      duplicatedBlock.settings.customIdEnabled = false;
+      duplicatedBlock.settings.customId = "";
+    }
     addBlock(duplicatedBlock);
     setCopiedBlock(null);
   }
