@@ -21,6 +21,7 @@ class Element {
   querySelectorAll(selector) { return this.selectors[selector] ?? []; }
   addEventListener(name, callback) { this.listeners[name] = callback; }
   setAttribute(name, value) { this[name] = value; }
+  removeAttribute(name) { delete this[name]; }
 }
 
 function harness(saved = null, preview = false, unavailable = false) {
@@ -126,6 +127,7 @@ function answerHarness(multiple = true, individual = true, saved = null, customF
   const block = new Element({ blockId: "answer", lock: "true", answerConfig: JSON.stringify({ multiple, fields, action: { type: "next" }, individual, animation: "shake", errorMessage: "違います", ...overrides }) });
   const feedback = new Element();
   const submit = new Element();
+  const clear = new Element();
   const inputs = fields.map(() => new Element());
   const results = fields.map(() => new Element());
   const rows = fields.map((field, index) => {
@@ -137,12 +139,13 @@ function answerHarness(multiple = true, individual = true, saved = null, customF
   });
   block.selectors[".conversation-answer-feedback"] = feedback;
   block.selectors[".conversation-submit"] = submit;
+  block.selectors[".conversation-clear"] = clear;
   block.selectors["[data-answer-field]"] = rows;
-  block.selectors["input, select, button"] = [...inputs, submit];
+  block.selectors["input, select, button"] = [...inputs, submit, clear];
   const progress = runtime.context.createReaderProgress(new Element({ progressKey: "x" }), [block]);
   const unlocks = [];
   runtime.context.initializeAnswers([block], progress, () => unlocks.push(true), delays);
-  return { ...runtime, block, feedback, submit, inputs, results, rows, progress, unlocks, send() { block.listeners.submit({ preventDefault() {} }); } };
+  return { ...runtime, block, feedback, submit, clear, inputs, results, rows, progress, unlocks, send() { block.listeners.submit({ preventDefault() {} }); } };
 }
 
 test("多答は2秒間回転アイコンを表示し、判定後に不正解欄だけを揺らす", () => {
@@ -406,4 +409,64 @@ test("回答ブロックのms設定を優先して判定結果を表示する", 
     form.send();
     assert.equal(form.timers[0].delay, delay);
   }
+});
+
+test("削除は編集可能な入力だけを空にし、正解済み回答と進捗を保持する", () => {
+  const form = answerHarness();
+  form.inputs[0].value = "a";
+  form.inputs[1].value = "wrong";
+  form.send();
+  form.clear.listeners.click();
+  assert.equal(form.inputs[1].value, "wrong", "判定中は削除しない");
+  form.tick();
+  const writes = form.writes.length;
+  form.clear.listeners.click();
+  assert.equal(form.rows[0].classes.has("conversation-clearing"), false);
+  assert.equal(form.rows[1].classes.has("conversation-clearing"), true);
+  assert.equal(form.inputs[1].value, "", "押した瞬間に消える");
+  assert.equal(form.clear.disabled, false);
+  assert.equal(form.submit.disabled, false);
+  form.inputs[1].value = "new answer";
+  form.clear.listeners.click();
+  assert.equal(form.inputs[1].value, "", "連打しても即座に消える");
+  assert.equal(form.timers.length, 0, "削除は待ち時間を設けない");
+  assert.equal(form.inputs[0].value, "a");
+  assert.equal(form.inputs[1].value, "");
+  assert.equal(form.results[0].textContent, "○");
+  assert.equal(form.results[1].textContent, "—");
+  assert.equal(form.writes.length, writes);
+  assert.equal(form.feedback.textContent, "");
+});
+
+test("削除はチェックボックスの選択とセレクトの値を空にする", () => {
+  const form = answerHarness();
+  form.inputs[0].type = "checkbox";
+  form.inputs[0].checked = true;
+  form.inputs[1].value = "selected";
+  form.clear.listeners.click();
+  assert.equal(form.inputs[0].checked, false);
+  assert.equal(form.inputs[1].value, "");
+});
+
+test("機能のないボタンは進行イベントを登録せず進捗も保存しない", () => {
+  const runtime = harness();
+  const block = new Element({ blockId: "plain" });
+  const button = new Element({ conversationAction: "none" });
+  block.selectors["[data-conversation-action]"] = button;
+  const progress = runtime.context.createReaderProgress(new Element({ progressKey: "x" }), [block]);
+  runtime.context.initializeAnswers([block], progress, () => assert.fail("進行しない"));
+  assert.equal(button.listeners.click, undefined);
+  assert.equal(button.disabled, undefined);
+  assert.equal(runtime.writes.length, 0);
+});
+
+test("削除演出中でもすぐに入力して送信できる", () => {
+  const form = answerHarness(false);
+  form.inputs[0].value = "wrong";
+  form.clear.listeners.click();
+  form.inputs[0].value = "a";
+  form.send();
+  assert.equal(form.timers.length, 1);
+  form.tick();
+  assert.equal(form.unlocks.length, 1);
 });

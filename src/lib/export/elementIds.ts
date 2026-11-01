@@ -20,6 +20,7 @@ export function elementIds(block: IdBlock) {
   return {
     root: base,
     submit: `${base}-for-submit`,
+    clear: `${base}-for-clear`,
     fields: fields.map((field) => {
       const kind = field.type === "text" ? "input" : field.type === "single" ? "select" : "checkbox";
       return field.type === "multiple"
@@ -30,5 +31,5 @@ export function elementIds(block: IdBlock) {
 }
 export function allElementIds(block: IdBlock): string[] {
   const ids = elementIds(block);
-  return block.type === "button" ? [ids.root] : [ids.root, ...ids.fields.flat(), ids.submit];
+  return block.type === "button" ? [ids.root] : [ids.root, ...ids.fields.flat(), ids.submit, ...(block.settings.showClearButton ? [ids.clear] : [])];
 }

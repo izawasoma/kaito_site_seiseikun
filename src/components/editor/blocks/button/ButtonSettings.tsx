@@ -13,7 +13,7 @@ export default function ButtonSettings({ value, onChange }: {
 }) {
   return <>
     <SettingsPanelHeader title="ボタン" icon="ads_click" />
-    <FormSection title="基本設定"><ActionFields label="押下時の挙動" value={value.action} onChange={(action) => onChange({ ...value, action })} urlError={value.action.type === "link" && !getLinkUrl(value.action.url) ? "有効な遷移先URLを入力してください" : undefined} /></FormSection>
+    <FormSection title="基本設定"><ActionFields allowNone label="押下時の挙動" value={value.action} onChange={(action) => onChange({ ...value, action })} urlError={value.action.type === "link" && !getLinkUrl(value.action.url) ? "有効な遷移先URLを入力してください" : undefined} /></FormSection>
     <FormSection title="表示設定">
       <ColorField label="背景色" value={value.backgroundColor} onValueChange={(backgroundColor) => onChange({ ...value, backgroundColor })} />
       <ColorField label="文字色" value={value.textColor} onValueChange={(textColor) => onChange({ ...value, textColor })} />

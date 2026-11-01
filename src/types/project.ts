@@ -63,6 +63,8 @@ export type CustomIdSettings = { customIdEnabled?: boolean; customId?: string };
 
 export type AnswerCommonSettings = CustomIdSettings & {
   judgmentDelayMs?: number;
+  showClearButton?: boolean;
+  clearButtonLabel?: string;
   instruction: string;
   submitLabel: string;
   successLabel: string;

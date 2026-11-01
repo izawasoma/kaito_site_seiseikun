@@ -38,6 +38,7 @@ export default function CustomIdFields({ block, onChange }: {
       });
     });
     targets.push({ label: "送信ボタン", id: ids.submit });
+    if (block.settings.showClearButton) targets.push({ label: "削除ボタン", id: ids.clear });
   }
   return <FormSection title="上級者向け">
     <Checkbox label="独自のIDを設定する" checked={enabled} onChange={(event) => onChange({ customIdEnabled: event.target.checked })} />

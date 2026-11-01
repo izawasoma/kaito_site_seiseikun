@@ -1,3 +1,4 @@
+import Checkbox from "@/components/ui/form/Checkbox";
 import NumberField from "@/components/ui/form/NumberField";
 import RadioGroup from "@/components/ui/form/RadioGroup";
 import DecoratedTextField from "@/components/editor/fields/DecoratedTextField";
@@ -19,6 +20,8 @@ export default function AnswerCommonFields({ value, onChange }: {
     />
     <DecoratedTextField label="入力注意事項" helperText="空欄で非表示" value={value.instruction} onChange={(instruction) => onChange({ ...value, instruction })} />
     <DecoratedTextField label="送信ボタンラベル" required value={value.submitLabel} onChange={(submitLabel) => onChange({ ...value, submitLabel })} />
+    <Checkbox label="削除ボタンを使用する" checked={value.showClearButton === true} onChange={(event) => onChange({ ...value, showClearButton: event.target.checked })} />
+    {value.showClearButton && <DecoratedTextField label="削除ボタンラベル" required value={value.clearButtonLabel ?? "削除"} onChange={(clearButtonLabel) => onChange({ ...value, clearButtonLabel })} helperText="入力中の回答を空にします。正解済みの回答は保持します。" />}
     <DecoratedTextField label="正解時メッセージ" helperText="空欄で非表示" value={value.successMessage} onChange={(successMessage) => onChange({ ...value, successMessage })} />
     <DecoratedTextField label="不正解時メッセージ" required value={value.errorMessage} onChange={(errorMessage) => onChange({ ...value, errorMessage })} />
     <RadioGroup label="不正解時アニメーション" value={value.animation} options={[{ value: "shake", label: "横揺れ" }, { value: "none", label: "なし" }]} onValueChange={(animation) => { if (animation === "shake" || animation === "none") onChange({ ...value, animation }); }} />

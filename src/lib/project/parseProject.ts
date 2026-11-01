@@ -69,9 +69,9 @@ function readPageSettings(value: unknown): PageSettingsValue {
 }
 
 /** アクションの構造を検証する。URLの入力途中は保存可能。 */
-function readAction(value: unknown) {
+function readAction(value: unknown, allowNone = false) {
   const action = record(value, "アクション");
-  return { type: choice(action.type, ["next", "link"], "アクション種別"), url: string(action.url, "遷移先URL"), allowRepeat: action.allowRepeat === undefined ? false : boolean(action.allowRepeat, "２回目の実行") };
+  return { type: choice(action.type, allowNone ? ["next", "link", "none"] : ["next", "link"], "アクション種別"), url: string(action.url, "遷移先URL"), allowRepeat: action.allowRepeat === undefined ? false : boolean(action.allowRepeat, "２回目の実行") };
 }
 
 /** 解答欄の候補と選択肢を検証する。 */
@@ -100,7 +100,10 @@ function readCustomId(settings: Record<string, unknown>) {
 
 /** 回答の共通設定を検証する。 */
 function readAnswerCommon(settings: Record<string, unknown>, fallback: number): AnswerCommonSettings {
-  return { judgmentDelayMs: readDelay(settings.judgmentDelayMs, fallback), ...readCustomId(settings), instruction: string(settings.instruction, "入力注意事項"), submitLabel: string(settings.submitLabel, "送信ラベル"),
+  return {
+    ...(settings.showClearButton === undefined ? {} : { showClearButton: boolean(settings.showClearButton, "削除ボタンの表示") }),
+    ...(settings.clearButtonLabel === undefined ? {} : { clearButtonLabel: string(settings.clearButtonLabel, "削除ボタンラベル") }),
+    judgmentDelayMs: readDelay(settings.judgmentDelayMs, fallback), ...readCustomId(settings), instruction: string(settings.instruction, "入力注意事項"), submitLabel: string(settings.submitLabel, "送信ラベル"),
     successLabel: settings.successLabel === undefined ? "次へ" : string(settings.successLabel, "正解後のラベル"),
     successMessage: settings.successMessage === undefined ? "正解です" : string(settings.successMessage, "正解時メッセージ"),
     errorMessage: string(settings.errorMessage, "不正解メッセージ"), animation: choice(settings.animation, ["shake", "none"], "不正解アニメーション"),
@@ -120,7 +123,7 @@ function readBlock(value: unknown): ProjectBlock {
     return { id, type: "image", simultaneous, afterPreviousTyping, settings: { url: string(settings.url, "画像URL"), alt: string(settings.alt, "ALT"), width: settings.width as 500 | 650 | 860 } };
   }
   if (block.type === "button") return { id, type: "button", simultaneous, afterPreviousTyping, settings: {
-    ...readCustomId(settings), text: string(settings.text, "ボタンラベル"), action: readAction(settings.action), typography: readTypography(settings.typography),
+    ...readCustomId(settings), text: string(settings.text, "ボタンラベル"), action: readAction(settings.action, true), typography: readTypography(settings.typography),
     backgroundColor: string(settings.backgroundColor, "背景色"), textColor: string(settings.textColor, "文字色"),
   } };
   if (block.type === "icon") return { id, type: "icon", simultaneous, afterPreviousTyping, settings: {

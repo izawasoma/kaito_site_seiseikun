@@ -91,6 +91,27 @@ function initializeAnswers(blocks, progress, onUnlock, delays = {}) {
         feedback.dataset.correct = "true";
         showCompletedControls();
       }
+      const clearButton = block.querySelector(".conversation-clear");
+      if (clearButton) clearButton.addEventListener("click", () => {
+        if (judging || progress.cleared(block) || !accessible(block)) return;
+        const editableRows = rows.filter((row) => !correctFields.has(row.dataset.answerField));
+        editableRows.forEach((row) => {
+          row.classList.remove("conversation-clearing");
+          void row.offsetWidth;
+          row.classList.add("conversation-clearing");
+          row.querySelectorAll("input, select").forEach((input) => {
+            if (input.type === "checkbox") input.checked = false;
+            else input.value = "";
+            input.removeAttribute("aria-invalid");
+          });
+          row.classList.remove("conversation-shake");
+          const result = row.querySelector("[data-field-result]");
+          if (result) { result.textContent = "—"; delete result.dataset.correct; }
+        });
+        feedback.textContent = "";
+        delete feedback.dataset.correct;
+        block.querySelector(".conversation-submit").classList.remove("conversation-shake");
+      });
       block.addEventListener("submit", (event) => {
         event.preventDefault();
         if (judging || !accessible(block)) return;
@@ -155,7 +176,7 @@ function initializeAnswers(blocks, progress, onUnlock, delays = {}) {
       });
     }
     const button = block.querySelector("[data-conversation-action]");
-    if (button) {
+    if (button && button.dataset.conversationAction !== "none") {
       const allowRepeat = button.dataset.conversationAction === "link" && button.dataset.allowRepeat === "true";
       button.disabled = progress.cleared(block) && !allowRepeat;
       button.addEventListener("click", () => {

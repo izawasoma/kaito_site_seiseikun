@@ -850,3 +850,23 @@ test("回答ごとの判定待ち時間をmsで保存し、旧ページ設定の
   block.settings.judgmentDelayMs = 750;
   assert.equal(parseProject(project).blocks[0].settings.judgmentDelayMs, 750);
 });
+
+test("削除ボタンの表示・ラベル・IDと機能のないボタンを保存・出力する", async () => {
+  const { createBlock } = await import("../src/lib/blocks/createBlock.ts");
+  const { allElementIds } = await import("../src/lib/export/elementIds.ts");
+  const answer = createBlock("answer");
+  const button = createBlock("button");
+  const project = { schemaVersion: 1, pageSettings: createPageSettings(), blocks: [answer, button] };
+  assert.ok(!generateProjectCode(project).htmlCss.includes('class="conversation-clear"'));
+  Object.assign(answer.settings, { showClearButton: true, clearButtonLabel: "入力を消す", customIdEnabled: true, customId: "quiz" });
+  button.settings.action.type = "none";
+  const restored = parseProject(project);
+  assert.equal(restored.blocks[0].settings.clearButtonLabel, "入力を消す");
+  assert.equal(restored.blocks[1].settings.action.type, "none");
+  const html = generateProjectCode(restored).htmlCss;
+  assert.match(html, /id="quiz-for-clear" class="conversation-clear" type="button">入力を消す/);
+  assert.ok(allElementIds(answer).includes("quiz-for-clear"));
+  assert.match(html, /data-lock="false"[^>]*><button[^>]*data-conversation-action="none"/);
+  answer.settings.showClearButton = false;
+  assert.ok(!allElementIds(answer).includes("quiz-for-clear"));
+});

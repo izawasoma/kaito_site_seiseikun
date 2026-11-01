@@ -4,7 +4,7 @@ import SelectField from "@/components/ui/form/SelectField";
 import TextField from "@/components/ui/form/TextField";
 
 export type ActionValue = {
-  type: "next" | "link";
+  type: "next" | "link" | "none";
   url: string;
   allowRepeat?: boolean;
 };
@@ -15,6 +15,7 @@ type ActionFieldsProps = {
   label?: string;
   urlError?: string;
   disabled?: boolean;
+  allowNone?: boolean;
 };
 
 export default function ActionFields({
@@ -23,6 +24,7 @@ export default function ActionFields({
   label = "正解時の挙動",
   urlError,
   disabled,
+  allowNone = false,
 }: ActionFieldsProps) {
   return (
     <Fields>
@@ -30,13 +32,14 @@ export default function ActionFields({
         label={label}
         value={value.type}
         onValueChange={(type) => {
-          if (type === "next" || type === "link") {
+          if (type === "next" || type === "link" || (allowNone && type === "none")) {
             onChange({ ...value, type });
           }
         }}
         options={[
           { value: "next", label: "次のブロックを表示する" },
           { value: "link", label: "指定したリンクへ遷移する" },
+          ...(allowNone ? [{ value: "none", label: "機能のないボタン" }] : []),
         ]}
         disabled={disabled}
       />

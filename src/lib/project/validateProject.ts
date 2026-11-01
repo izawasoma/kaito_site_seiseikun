@@ -67,6 +67,10 @@ export function validateBlock(block: ProjectBlock): string[] {
     case "answer": case "multiAnswer": {
       const delay = block.settings.judgmentDelayMs;
       if (delay !== undefined && (!Number.isInteger(delay) || delay < 0 || delay > 60000)) errors.push("判定待ち時間は0〜60000msの整数で入力してください。");
+      if (block.settings.showClearButton) {
+        required(block.settings.clearButtonLabel ?? "削除", "削除ボタンラベル");
+        decorated(block.settings.clearButtonLabel ?? "削除", "削除ボタンラベル");
+      }
       required(block.settings.submitLabel, "送信ボタンラベル");
       required(block.settings.errorMessage, "不正解時メッセージ");
       decorated(block.settings.instruction, "入力注意事項");
